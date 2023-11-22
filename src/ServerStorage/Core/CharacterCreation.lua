@@ -3,11 +3,10 @@ local ServerModules = require(ServerStorage:WaitForChild("Modules"))
 local DataStoreModule = ServerModules.Services.DataStore
 local VerifyText = ServerModules.Utility.VerifyText
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ReplicatedModules = require(ReplicatedStorage:WaitForChild("Modules"))
-local Red = ReplicatedModules.Services.Red
+local Packages = game:GetService("ReplicatedStorage").Packages
+local Red = require(Packages.Red)
 
-local Net = Red.Server("RemoteSpace")
+-- local Net = Red.Server("RemoteSpace")
 
 local SystemsContainer = {}
 
@@ -114,9 +113,9 @@ function Module:createCharacter(localPlayer, characterName : string, characterTy
 end
 
 function Module:Start()
-	Net:On("CreateCharacter", function(localPlayer, characterName, characterType)
-		Module:createCharacter(localPlayer, characterName, characterType)
-	end)
+	-- Net:On("CreateCharacter", function(localPlayer, characterName, characterType)
+	-- 	Module:createCharacter(localPlayer, characterName, characterType)
+	-- end)
 end
 
 function Module:Init(otherSystems)

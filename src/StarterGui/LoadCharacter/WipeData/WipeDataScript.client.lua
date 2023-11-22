@@ -1,7 +1,7 @@
-local WipeDataButton = script.Parent
+-- local WipeDataButton = script.Parent
 
-local WipeDataEvent = game:GetService("ReplicatedStorage"):WaitForChild("WipeDataEvent")
+-- local WipeDataEvent = game:GetService("ReplicatedStorage"):WaitForChild("WipeDataEvent")
 
-WipeDataButton.MouseButton1Click:Connect(function()
-	WipeDataEvent:FireServer()
-end)
+-- WipeDataButton.MouseButton1Click:Connect(function()
+-- 	WipeDataEvent:FireServer()
+-- end)
