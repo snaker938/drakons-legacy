@@ -1,3 +1,1 @@
-local module = {}
-
-return module
+return require(game:GetService('ReplicatedStorage'):WaitForChild('Framework'))(script)
