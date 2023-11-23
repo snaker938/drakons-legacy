@@ -44,10 +44,17 @@ local GlobalDataTemplate = {
 --------
 
 -- // Module // --
-local Module = {}
+local Module = {ProfileDataTemplate = ProfileDataTemplate, GlobalDataTemplate = GlobalDataTemplate}
 
+function Module:_GetDataTemplate(type)
+	if type == "Profile" then
+		return ProfileDataTemplate
+	elseif type == "Global" then
+		return GlobalDataTemplate
+	end
+end
 
-function Module:setCurrentlyPlayingToFalse(localPlayer)
+function Module:SetCurrentlyPlayingToFalse(localPlayer)
 	for i = 1, 4 do
 		local profileData = DataStoreModule.find("Player", localPlayer.UserId, "Profile_" .. i)
 		if profileData == nil then continue end
@@ -107,7 +114,7 @@ function Module:OnPlayerAdded(localPlayer)
 	end)
 	Module:GlobalDataStateChanged(PlayerGlobalData.State, PlayerGlobalData)
 
-	Module:setCurrentlyPlayingToFalse(localPlayer)
+	Module:SetCurrentlyPlayingToFalse(localPlayer)
 end
 
 function Module:OnPlayerRemoving(localPlayer)

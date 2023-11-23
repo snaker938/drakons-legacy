@@ -19,10 +19,7 @@ function Module:WipePlayerData(localPlayer)
 	local GlobalData = DataStoreModule.find("Player", localPlayer.UserId, "GlobalData")
 	if GlobalData == nil then return false end
 	if GlobalData.State ~= true then return false end
-	GlobalData.Value = {
-		CurrentlyPlayingProfile = 0,
-		Draken = 0,
-	}
+	GlobalData.Value = SystemsContainer.ProfileHandling:_GetDataTemplate("Global")
 
 	GlobalData:Save()
 
@@ -31,32 +28,7 @@ function Module:WipePlayerData(localPlayer)
 		if profileData == nil then return false end
 		if profileData.State ~= true then return false end
 
-		profileData.Value = {
-			CurrentlyPlaying = false,
-			HasPlayed = false,
-			CharacterName = "",
-			ClassType = "",
-			CharacterLevel = 1,
-			CharacterXP = 0,
-			LastUrbanArea = "",
-			LastArea = "Starfall Bastion",
-			QuestData = {},
-			Inventory = {},
-			InventoryTier = 0,
-			EquippedItems = {},
-			CurrencyBag = {},
-			MapStatus = {},
-			SkillTree = {},
-			SkillHotbar = {},
-			EquippedPotions = {},
-			EquippedEssence = {},
-			EquippedMount = {},
-			Buffs = {},
-			WisdomTree = {},
-			Locker = {},
-			LockerTier = 0,
-			Gamepasses = {},
-			OtherStats = {},}
+		profileData.Value = SystemsContainer.ProfileHandling:_GetDataTemplate("Profile")
 
 		profileData:Save()
 	end

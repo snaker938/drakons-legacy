@@ -1,6 +1,12 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local ReplicatedModules = require(ReplicatedStorage:WaitForChild('Modules'))
 local Trove = ReplicatedModules.Classes.Trove
+
+local Interface = LocalPlayer:WaitForChild('PlayerGui')
+local LoadCharacterWidget = Interface:WaitForChild('LoadCharacter')
 
 local SystemsContainer = {}
 local WidgetControllerModule = {}
@@ -21,6 +27,7 @@ function Module:OpenWidget()
     end
     
     Module.Open = true
+    LoadCharacterWidget.Enabled = true
 end
 
 function Module:CloseWidget()
@@ -29,6 +36,7 @@ function Module:CloseWidget()
     end
     
     Module.Open = false
+    LoadCharacterWidget.Enabled = false
     Module.WidgetTrove:Destroy()
 end
 
