@@ -15,41 +15,38 @@ local SystemsContainer = {}
 -- // Module // --
 local Module = {}
 
-function Module:PlaySelectedCharacter(localPlayer, playSlot)
-	if not localPlayer or not playSlot then return end
-	if not localPlayer:IsA("Player") then return end
+function Module:PlaySelectedCharacter(localPlayer : Player, playSlot)
+	if not playSlot then return end
 	
 	playSlot = tonumber(playSlot)
 	
-	if not playSlot then return end
-	if playSlot > 4 or playSlot < 1 then return end
-	if playSlot % 1 ~= 0 then return end
+	if not playSlot then localPlayer:Kick("A Critical Error Occured") end
+	if playSlot > 4 or playSlot < 1 then localPlayer:Kick("A Critical Error Occured") end
+	if playSlot % 1 ~= 0 then localPlayer:Kick("A Critical Error Occured") end
 	
-	
-	playSlot = tostring(playSlot)
-	
-	local profileName = "Profile_" .. playSlot
-	local dataStore = DataStoreModule.find("Player", localPlayer.UserId, profileName)
+	local GlobalData = SystemsContainer.DataHandling.ProfileHandling:GetCurrentUserData(localPlayer, "global")
 
-	if dataStore == nil then
-		return
-	end
-
-	if dataStore.Value.HasPlayed == false then return end
-	if dataStore.State ~= true then
-		return 
-	end
+	if playSlot > GlobalData.Value.NumSlotsUsed then localPlayer:Kick("Critical Error Occured") end
 	
-	dataStore.Value.CurrentlyPlaying = true
+	GlobalData.Value.CurrentlyPlayingProfile = playSlot	
 	
-	local GlobalPlayerDataStore = DataStoreModule.find("Player", localPlayer.UserId, "GlobalData")
-	GlobalPlayerDataStore.Value.CurrentlyPlayingProfile = tonumber(playSlot)
-	
-	
-	if dataStore:Save() == "Saved" and GlobalPlayerDataStore:Save() == "Saved" then
+	if GlobalData:Save() == "Saved" then
 		print("Teleporting player to Starfall Bastion")
 	else
-		return
+		local errorCount = 0
+		repeat
+			errorCount = errorCount + 1
+			GlobalData:Save()
+			task.wait(0.25)
+
+			if errorCount == 12 then
+				error("Error saving data!")
+				localPlayer:Kick("Critical Error Creating Character")
+				return
+			end
+		until GlobalData:Save() == "Saved"
+
+		print("Teleporting player to Starfall Bastion (but errored)")
 	end
 end
 

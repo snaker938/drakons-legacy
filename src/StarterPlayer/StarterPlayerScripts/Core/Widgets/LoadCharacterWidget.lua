@@ -11,6 +11,18 @@ local LoadCharacterWidget = Interface:WaitForChild('LoadCharacter')
 local SystemsContainer = {}
 local WidgetControllerModule = {}
 
+----- Replica Data -----
+
+-- local ReplicaTestClient = {
+
+-- }
+
+-- local ReplicaController = require(game:GetService("ReplicatedStorage"):WaitForChild("Core"):WaitForChild("ReplicaController"):WaitForChild("ReplicaController"))
+
+-- ReplicaController.RequestData()
+
+-------------------------
+
 -- // Module // --
 local Module = {}
 
@@ -41,7 +53,13 @@ function Module:CloseWidget()
 end
 
 function Module:Start()
+    -- ReplicaController.ReplicaOfClassCreated("PlayerProfile", function(replica)
+    --     local is_local = replica.Tags.Player == LocalPlayer
+    --     local player_name = is_local and "your" or replica.Tags.Player.Name .. "'s"
+    --     local replica_data = replica.Data
     
+    --     print("Received " .. player_name .. " player profile")
+    -- end)
 end
 
 function Module:Init(ParentController, otherSystems)

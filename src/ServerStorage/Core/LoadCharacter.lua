@@ -14,7 +14,7 @@ local SystemsContainer = {}
 local Module = {}
 
 function Module:Start()
-
+	-- print(SystemsContainer)
 end
 
 function Module:Init(otherSystems)

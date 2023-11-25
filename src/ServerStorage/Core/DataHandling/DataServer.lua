@@ -9,36 +9,37 @@ local SystemsContainer = {}
 
 -- // Data Templates -- //
 local ProfileDataTemplate = {
-	CurrentlyPlaying = false,
-	HasPlayed = false,
 	CharacterName = "",
 	ClassType = "",
 	CharacterLevel = 1,
 	CharacterXP = 0,
-	LastUrbanArea = "",
+	-- LastUrbanArea = "",
 	LastArea = "Starfall Bastion",
-	QuestData = {},
+	-- QuestData = {},
 	Inventory = {},
 	InventoryTier = 0,
-	EquippedItems = {},
-	CurrencyBag = {},
-	MapStatus = {},
-	SkillTree = {},
-	SkillHotbar = {},
-	EquippedPotions = {},
-	EquippedEssence = {},
-	EquippedMount = {},
-	Buffs = {},
-	WisdomTree = {},
+	-- EquippedItems = {},
+	-- CurrencyBag = {},
+	-- MapStatus = {},
+	-- SkillTree = {},
+	-- SkillHotbar = {},
+	-- EquippedPotions = {},
+	-- EquippedEssence = {},
+	-- EquippedMount = {},
+	-- Buffs = {},
+	-- WisdomTree = {},
 	Locker = {},
 	LockerTier = 0,
-	Gamepasses = {},
-	OtherStats = {},
+	-- Gamepasses = {},
+	-- OtherStats = {},
 }
 
 local GlobalDataTemplate = {
-	CurrentlyPlayingProfile = 0,
+	NumSlotsUsed = -1,
+	CurrentlyPlayingProfile = -1,
 	Draken = 0,
+	Banned = false,
+	Version = 1,
 }
 
 --------
@@ -46,26 +47,12 @@ local GlobalDataTemplate = {
 -- // Module // --
 local Module = {ProfileDataTemplate = ProfileDataTemplate, GlobalDataTemplate = GlobalDataTemplate}
 
-function Module:_GetDataTemplate(type)
-	if type == "Profile" then
+function Module:GetDataTemplate(type)
+	if type == "player" then
 		return ProfileDataTemplate
-	elseif type == "Global" then
+	elseif type == "global" then
 		return GlobalDataTemplate
 	end
-end
-
-function Module:SetCurrentlyPlayingToFalse(localPlayer)
-	for i = 1, 4 do
-		local profileData = DataStoreModule.find("Player", localPlayer.UserId, "Profile_" .. i)
-		if profileData == nil then continue end
-		if profileData.State ~= true then continue end
-
-		profileData.Value.CurrentlyPlaying = false
-
-	end
-	local GlobalData = DataStoreModule.find("Player", localPlayer.UserId, "GlobalData")
-	GlobalData.Value.CurrentlyPlayingProfile = 0
-	return
 end
 
 function Module:ProfileStateChanged(state, dataStore)
@@ -114,7 +101,16 @@ function Module:OnPlayerAdded(localPlayer)
 	end)
 	Module:GlobalDataStateChanged(PlayerGlobalData.State, PlayerGlobalData)
 
-	Module:SetCurrentlyPlayingToFalse(localPlayer)
+	-- SystemsContainer.WipeData:WipePlayerData(localPlayer)
+	-- for i = 1, 4 do
+	-- 	local profileData = DataStoreModule.find("Player", localPlayer.UserId, "Profile_" .. i)
+	-- 	if profileData == nil then continue end
+	-- 	if profileData.State ~= true then continue end
+
+	-- 	print(profileData.Value)
+	-- end
+	-- profileData = DataStoreModule.find("Player", localPlayer.UserId, "GlobalData")
+	-- print(profileData.Value)
 end
 
 function Module:OnPlayerRemoving(localPlayer)
@@ -124,14 +120,15 @@ function Module:OnPlayerRemoving(localPlayer)
 	local Profile_4_Data = DataStoreModule.find("Player", localPlayer.UserId, "Profile_4")
 	--local Profile_5_Data = DataStoreModule.find("Player", player.UserId, "Profile_5")
 
-	local GlobalPlayerData = DataStoreModule.find("Player", localPlayer.UserId, "GlobalData")
-
+	SystemsContainer.ProfileHandling:SetCurrentlyPlayingToFalse(localPlayer)
 
 	if Profile_1_Data ~= nil then Profile_1_Data:Destroy() end
 	if Profile_2_Data ~= nil then Profile_2_Data:Destroy() end
 	if Profile_3_Data ~= nil then Profile_3_Data:Destroy() end
 	if Profile_4_Data ~= nil then Profile_4_Data:Destroy() end
 	--if Profile_5_Data ~= nil then Profile_5_Data:Destroy() end
+
+	local GlobalPlayerData = DataStoreModule.find("Player", localPlayer.UserId, "GlobalData")
 
 	if GlobalPlayerData ~= nil then GlobalPlayerData:Destroy() end
 end
@@ -145,6 +142,7 @@ function Module:Start()
 	Players.PlayerRemoving:Connect(function(localPlayer)
 		Module:OnPlayerRemoving(localPlayer)
 	end)
+
 end
 
 function Module:Init(otherSystems)
