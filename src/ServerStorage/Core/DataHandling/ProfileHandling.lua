@@ -4,35 +4,15 @@ local DataStoreModule = ServerModules.Services.DataStore
 
 local SystemsContainer = {}
 
+
+local ReplicaService = require(game:GetService("ServerScriptService").ReplicaService)
+
+
 -- // Module // --
 local Module = {}
 
-function Module:CloseDataStoresNotInUse(localPlayer : Player)
-    for i = 1, 4 do
-		local profileData = DataStoreModule.find("Player", localPlayer.UserId, "Profile_" .. i)
-		
-		if profileData == nil then continue
-		elseif profileData.State ~= true then continue
-		elseif profileData.Value.CurrentlyPlaying then
-			continue
-		else
-			profileData:Destroy()
-		end		
-	end
-end
-
-function Module:SetCurrentlyPlayingToFalse(localPlayer : Player)
-    for i = 1, 4 do
-		local profileData = DataStoreModule.find("Player", localPlayer.UserId, "Profile_" .. i)
-		if profileData == nil then continue end
-		if profileData.State ~= true then continue end
-
-		profileData.Value.CurrentlyPlaying = false
-
-	end
-
-	local GlobalData = DataStoreModule.find("Player", localPlayer.UserId, "GlobalData")
-	GlobalData.Value.CurrentlyPlayingProfile = -1
+function Module:ReplicateDataToClient(localPlayer : Player, playSlot : number)
+    local PlayerProfileClassToken = ReplicaService.NewClassToken("PlayerProfile_" .. localPlayer.UserId)
 end
 
 function Module:GetCurrentUserData(localPlayer : Player, type : string)

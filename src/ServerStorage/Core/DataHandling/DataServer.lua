@@ -67,7 +67,30 @@ function Module:GlobalDataStateChanged(state, dataStore)
 	end
 end
 
-function Module:OnPlayerAdded(localPlayer)
+function Module:CloseDataStoresNotInUse(localPlayer : Player)
+    for profileNum = 1, 4 do
+		local profileData = SystemsContainer.ProfileHandling:GetSpecificProfileData(localPlayer, profileNum)
+		local globalData = SystemsContainer.ProfileHandling:GetCurrentUserData(localPlayer, "global")
+
+		local CurrentlyPlayingProfile = globalData.Value.CurrentlyPlayingProfile
+
+		if profileNum == tonumber(CurrentlyPlayingProfile) then
+			continue
+		else
+			profileData:Destroy()
+		end
+	end
+end
+
+function Module:SetCurrentlyPlayingToFalse(localPlayer : Player)
+ 	local GlobalData = SystemsContainer.ProfileHandling:GetCurrentUserData(localPlayer, "global")
+	GlobalData.Value.CurrentlyPlayingProfile = -1
+end
+
+function Module:OnPlayerAdded(localPlayer : Player)
+	if localPlayer:IsDescendantOf(Players) == false then
+		localPlayer:Kick("Critical Error Getting Player Data")
+	end
 	local Profile_1_Data = DataStoreModule.new("Player", localPlayer.UserId, "Profile_1")
 	local Profile_2_Data = DataStoreModule.new("Player", localPlayer.UserId, "Profile_2")
 	local Profile_3_Data = DataStoreModule.new("Player", localPlayer.UserId, "Profile_3")
@@ -120,7 +143,8 @@ function Module:OnPlayerRemoving(localPlayer)
 	local Profile_4_Data = DataStoreModule.find("Player", localPlayer.UserId, "Profile_4")
 	--local Profile_5_Data = DataStoreModule.find("Player", player.UserId, "Profile_5")
 
-	SystemsContainer.ProfileHandling:SetCurrentlyPlayingToFalse(localPlayer)
+	Module:SetCurrentlyPlayingToFalse(localPlayer)
+
 
 	if Profile_1_Data ~= nil then Profile_1_Data:Destroy() end
 	if Profile_2_Data ~= nil then Profile_2_Data:Destroy() end
@@ -135,6 +159,12 @@ end
 
 
 function Module:Start()
+	for _, localPlayer in ipairs(Players:GetPlayers()) do
+		task.defer(function()
+			Module:OnPlayerAdded(localPlayer)
+		end)
+	end
+
 	Players.PlayerAdded:Connect(function(localPlayer)
 		Module:OnPlayerAdded(localPlayer)
 	end)
