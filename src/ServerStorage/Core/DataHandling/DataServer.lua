@@ -4,6 +4,7 @@ local ServerModules = require(ServerStorage:WaitForChild("Modules"))
 local Players = game:GetService("Players")
 
 local DataStoreModule = ServerModules.Services.DataStore
+local ReplicaService = require(game:GetService("ServerScriptService").ReplicaService)
 
 local SystemsContainer = {}
 
@@ -42,6 +43,12 @@ local GlobalDataTemplate = {
 	Version = 1,
 }
 
+local PlayerProfile -- PlayerProfile object
+local PlayerProfiles = {} -- [player] = {Profile = profile, Replica = replica}
+
+local GlobalProfile -- GlobalProfile object
+local GlobalProfiles = {} -- [player] = {Global = global, Replica = replica}
+
 --------
 
 -- // Module // --
@@ -68,11 +75,11 @@ function Module:GlobalDataStateChanged(state, dataStore)
 end
 
 function Module:CloseDataStoresNotInUse(localPlayer : Player)
+	local globalData = SystemsContainer.ProfileHandling:GetCurrentUserData(localPlayer, "global")
+	local CurrentlyPlayingProfile = globalData.Value.CurrentlyPlayingProfile
+
     for profileNum = 1, 4 do
 		local profileData = SystemsContainer.ProfileHandling:GetSpecificProfileData(localPlayer, profileNum)
-		local globalData = SystemsContainer.ProfileHandling:GetCurrentUserData(localPlayer, "global")
-
-		local CurrentlyPlayingProfile = globalData.Value.CurrentlyPlayingProfile
 
 		if profileNum == tonumber(CurrentlyPlayingProfile) then
 			continue
@@ -80,6 +87,8 @@ function Module:CloseDataStoresNotInUse(localPlayer : Player)
 			profileData:Destroy()
 		end
 	end
+
+	Module:ReplicateDataToClient(localPlayer, CurrentlyPlayingProfile)
 end
 
 function Module:SetCurrentlyPlayingToFalse(localPlayer : Player)
@@ -155,6 +164,18 @@ function Module:OnPlayerRemoving(localPlayer)
 	local GlobalPlayerData = DataStoreModule.find("Player", localPlayer.UserId, "GlobalData")
 
 	if GlobalPlayerData ~= nil then GlobalPlayerData:Destroy() end
+
+	local player_profile = PlayerProfiles[localPlayer]
+    if player_profile ~= nil then
+        PlayerProfiles[localPlayer].Replica:Destroy()
+        PlayerProfiles[localPlayer] = nil
+    end
+
+	local global_profile = GlobalProfiles[localPlayer]
+    if global_profile ~= nil then
+        GlobalProfiles[localPlayer].Replica:Destroy()
+        GlobalProfiles[localPlayer] = nil
+    end
 end
 
 
@@ -179,4 +200,76 @@ function Module:Init(otherSystems)
 	SystemsContainer = otherSystems
 end
 
+
+-- Replica Handling
+
+function Module:ReplicateDataToClient(localPlayer : Player, playSlot : number)
+	-- Profile Replica
+    local PlayerProfileClassToken = ReplicaService.NewClassToken("PlayerProfile_" .. localPlayer.UserId)
+
+    local profile = SystemsContainer.ProfileHandling:GetSpecificProfileData(localPlayer, playSlot)
+
+    local player_profile = {
+		Profile = profile,
+		Replica = ReplicaService.NewReplica({
+			ClassToken = PlayerProfileClassToken,
+			Tags = {Player = localPlayer},
+			Data = profile,
+			Replication = localPlayer,
+		}),
+		_player = localPlayer,
+	}
+	setmetatable(player_profile, PlayerProfile)
+	PlayerProfiles[localPlayer] = player_profile
+
+
+	-- Global Replica
+	local GlobalProfileClassToken = ReplicaService.NewClassToken("GlobalProfile_" .. localPlayer.UserId)
+
+	local globalProfile = SystemsContainer.ProfileHandling:GetCurrentUserData(localPlayer, "global")
+
+	local global_profile = {
+		Global = globalProfile,
+		Replica = ReplicaService.NewReplica({
+			ClassToken = GlobalProfileClassToken,
+			Tags = {Player = localPlayer},
+			Data = globalProfile,
+			Replication = localPlayer,
+		}),
+		_player = localPlayer
+	}
+
+	setmetatable(global_profile, GlobalProfile)
+	GlobalProfiles[localPlayer] = global_profile
+end
+
+----- Public functions -----
+
+-- PlayerProfile object:
+PlayerProfile = {
+	--[[
+		_player = player,
+	--]]
+}
+
+-- GlobalProfile object:
+GlobalProfile = {
+	--[[
+		_player = player,
+	--]]
+}
+
+PlayerProfile.__index = PlayerProfile
+
+GlobalProfile.__index = GlobalProfile
+
+function GlobalProfile:IsActive()
+	return PlayerProfiles[self._player] ~= nil
+end
+
+function PlayerProfile:IsActive() --> is_active
+	return GlobalProfiles[self._player] ~= nil
+end
+
 return Module
+

@@ -4,16 +4,9 @@ local DataStoreModule = ServerModules.Services.DataStore
 
 local SystemsContainer = {}
 
-
-local ReplicaService = require(game:GetService("ServerScriptService").ReplicaService)
-
-
 -- // Module // --
 local Module = {}
 
-function Module:ReplicateDataToClient(localPlayer : Player, playSlot : number)
-    local PlayerProfileClassToken = ReplicaService.NewClassToken("PlayerProfile_" .. localPlayer.UserId)
-end
 
 function Module:GetCurrentUserData(localPlayer : Player, type : string)
     type = type or "both"
