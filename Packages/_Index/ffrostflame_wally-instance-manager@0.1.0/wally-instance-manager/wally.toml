@@ -1,8 +1,7 @@
 [package]
-name = "jmend/drakons-legacy"
+name = "ffrostflame/wally-instance-manager"
 version = "0.1.0"
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
 
 [dependencies]
-BridgeNet2 = "ffrostflame/bridgenet2@1.0.0"
