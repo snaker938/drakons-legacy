@@ -14,7 +14,7 @@ local ProfileDataTemplate = {
 	ClassType = "",
 	CharacterLevel = 1,
 	CharacterXP = 0,
-	-- LastUrbanArea = "",
+	LastUrbanArea = "",
 	LastArea = "Starfall Bastion",
 	-- QuestData = {},
 	Inventory = {},
@@ -100,6 +100,7 @@ function Module:OnPlayerAdded(localPlayer : Player)
 	if localPlayer:IsDescendantOf(Players) == false then
 		localPlayer:Kick("Critical Error Getting Player Data")
 	end
+
 	local Profile_1_Data = DataStoreModule.new("Player", localPlayer.UserId, "Profile_1")
 	local Profile_2_Data = DataStoreModule.new("Player", localPlayer.UserId, "Profile_2")
 	local Profile_3_Data = DataStoreModule.new("Player", localPlayer.UserId, "Profile_3")
@@ -133,14 +134,18 @@ function Module:OnPlayerAdded(localPlayer : Player)
 	end)
 	Module:GlobalDataStateChanged(PlayerGlobalData.State, PlayerGlobalData)
 
-	-- SystemsContainer.WipeData:WipePlayerData(localPlayer)
+	SystemsContainer.WipeData:WipePlayerData(localPlayer, nil, true)
+
 	-- for i = 1, 4 do
 	-- 	local profileData = DataStoreModule.find("Player", localPlayer.UserId, "Profile_" .. i)
+	-- 	print(profileData.Value)
 	-- 	if profileData == nil then continue end
 	-- 	if profileData.State ~= true then continue end
-
-	-- 	print(profileData.Value)
 	-- end
+
+	SystemsContainer.ProfileHandling:SendLoadProfileDataToClient(localPlayer)
+
+
 	-- profileData = DataStoreModule.find("Player", localPlayer.UserId, "GlobalData")
 	-- print(profileData.Value)
 end

@@ -11,13 +11,13 @@ function Module:GetWidget(widgetName)
 	return WidgetsCache[widgetName]
 end
 
-function Module:ToggleWidget(widgetName, enabled)
+function Module:ToggleWidget(widgetName, enabled, ...)
 	local cachedModule = WidgetsCache[widgetName]
 	if not cachedModule then
 		return
 	end
 	if enabled then
-		cachedModule:OpenWidget()
+		cachedModule:OpenWidget(...)
 	else
 		cachedModule:CloseWidget()
 	end
@@ -49,11 +49,12 @@ end
 function Module:Start()
 	-- enable LoadCharacter menu on spawn, if the player has at least one character, otherwise open the character creation menu
 	for WidgetName, WidgetModule in pairs(WidgetsCache) do
-		if WidgetName == "LoadCharacterWidget" then
-			WidgetModule:OpenWidget()
-		else
-			WidgetModule:CloseWidget()
-		end
+		WidgetModule:CloseWidget()
+		-- if WidgetName == "LoadCharacterWidget" then
+		-- 	WidgetModule:OpenWidget()
+		-- else
+		-- 	WidgetModule:CloseWidget()
+		-- end
 	end
 end
 

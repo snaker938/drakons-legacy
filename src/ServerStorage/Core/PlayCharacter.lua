@@ -3,9 +3,7 @@ local ServerModules = require(ServerStorage:WaitForChild("Modules"))
 local DataStoreModule = ServerModules.Services.DataStore
 
 local Packages = game:GetService("ReplicatedStorage").Packages
-local Red = require(Packages.Red)
 
--- local Net = Red.Server("RemoteSpace")
 
 local Players = game:GetService("Players")
 
@@ -40,7 +38,7 @@ function Module:PlaySelectedCharacter(localPlayer : Player, playSlot)
 			task.wait(0.25)
 
 			if errorCount == 12 then
-				error("Error saving data!")
+				print("Error saving data!")
 				localPlayer:Kick("Critical Error Creating Character")
 				return
 			end

@@ -2,10 +2,6 @@ local ServerStorage = game:GetService('ServerStorage')
 local ServerModules = require(ServerStorage:WaitForChild("Modules"))
 
 local Packages = game:GetService("ReplicatedStorage").Packages
-local Red = require(Packages.Red)
-
--- local Net = Red.Server("RemoteSpace")
-
 
 local SystemsContainer = {}
 
@@ -31,9 +27,6 @@ end
 
 
 function Module:Start()
-	-- Net:On("WipePlayerData", function(localPlayer)
-	-- 	Module:WipePlayerData(localPlayer)
-	-- end)
 end
 
 function Module:Init(otherSystems)

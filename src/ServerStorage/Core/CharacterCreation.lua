@@ -4,9 +4,10 @@ local DataStoreModule = ServerModules.Services.DataStore
 local VerifyText = ServerModules.Utility.VerifyText
 
 local Packages = game:GetService("ReplicatedStorage").Packages
-local Red = require(Packages.Red)
 
--- local Net = Red.Server("RemoteSpace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local BridgeNet2 = require(ReplicatedStorage.Packages.BridgeNet2)
+local createCharacter = BridgeNet2.ServerBridge("createCharacter")
 
 local SystemsContainer = {}
 
@@ -14,10 +15,11 @@ local SystemsContainer = {}
 local Module = {}
 
 function Module:FindProfileToCreate(localPlayer : Player)
-	local GlobalPlayerData = SystemsContainer.ProfileHandling:GetCurrentUserData(localPlayer, "global")
+	local GlobalPlayerData = SystemsContainer.DataHandling.ProfileHandling:GetCurrentUserData(localPlayer, "global")
+
 
 	if GlobalPlayerData.Value.NumSlotsUsed == 4 then
-		error("Critical Error Creating Character")
+		print("Critical Error Creating Character")
 		localPlayer:Kick("Critical Error Creating Character")
 	end
 
@@ -25,7 +27,7 @@ function Module:FindProfileToCreate(localPlayer : Player)
 end
 
 function Module:CheckIfAllProfilesAreUsed(localPlayer : Player)
-	if SystemsContainer.ProfileHandling:GetCurrentUserData(localPlayer, "global").Value.NumSlotsUsed == 4 then
+	if SystemsContainer.DataHandling.ProfileHandling:GetCurrentUserData(localPlayer, "global").Value.NumSlotsUsed == 4 then
 		return true
 	else
 		return false
@@ -34,42 +36,53 @@ end
 
 
 function Module:CreateCharacter(localPlayer, characterName : string, characterType : string)
-	if not localPlayer or not characterName or not characterType then return end
+	-- if not localPlayer or not characterName or not characterType then return false end
+	if not localPlayer then return {false, "Critical Error Occured"} end
+	if not characterType then localPlayer:Kick("Critical Error Creating Character") end
+	if not characterName then return {false, "Invalid Character Name"} end
+
+	if characterName == "" then return {false, "Invalid Character Name"} end
 	
-	if typeof(characterType) ~= "string" then return end
+	if typeof(characterType) ~= "string" then localPlayer:Kick("Critical Error Occured") end
 	
-	if typeof(characterName) ~= "string" then return end
+	if typeof(characterName) ~= "string" then localPlayer:Kick("Critical Error Occured") end
 	
 	if characterType ~= "Battlelord" and characterType ~= "Spellweaver" and characterType ~= "Ranger" and characterType ~= "Tinkerer" then
 		-- displayErrorMessageEvent:FireClient(player, "Something went wrong... Try again later! random")
-		error("Character type not allowed!")
+		print("Character type not allowed!")
 		localPlayer:Kick("Critical Error Creating Character")
-		return
 	end
 	
 	
 	if Module:CheckIfAllProfilesAreUsed(localPlayer) then
 		-- displayErrorMessageEvent:FireClient(player, "All profile slots used!")
-		warn("All profile slots used!")
-		return
+		print("All profile slots used!")
+		return {false, "All profile slots used!"}
 	end
+
 	
 	-- local isUsernameAlright = verifyUsernameInputEvent:Invoke(player, characterName)
 	local isUsernameAlright = VerifyText:VerifyText(localPlayer, characterName, "username")
 	
 	if isUsernameAlright then
-		local PlayerData, GlobalData = SystemsContainer.ProfileHandling:GetCurrentUserData(localPlayer)
+		local GlobalData = SystemsContainer.DataHandling.ProfileHandling:GetCurrentUserData(localPlayer, "global")
+
+		local PlayerData = SystemsContainer.DataHandling.ProfileHandling:GetSpecificProfileData(localPlayer, Module:FindProfileToCreate(localPlayer) + 1)
 
 		PlayerData.Value.CharacterName = characterName
 		PlayerData.Value.ClassType = characterType
 
-		local CurrentlyPlayingProfile = Module:FindProfileToCreate(localPlayer) - 1
+		print(SystemsContainer.DataHandling.ProfileHandling:GetSpecificProfileData(localPlayer, 4).Value)
+
+
+		local CurrentlyPlayingProfile = Module:FindProfileToCreate(localPlayer)
 		
 		GlobalData.Value.CurrentlyPlayingProfile = CurrentlyPlayingProfile
 		GlobalData.Value.NumSlotsUsed = CurrentlyPlayingProfile
 		
 		if PlayerData:Save() == "Saved" and GlobalData:Save() == "Saved" then
 			print("Character created!")
+			return {true, ""}
 			-- local TARGET_PLACE_ID = 14169281935 -- Starfall Bastion
 
 			-- local success, result = SafeTeleport(TARGET_PLACE_ID, {player})
@@ -85,25 +98,27 @@ function Module:CreateCharacter(localPlayer, characterName : string, characterTy
 				task.wait(0.25)
 
 				if errorCount == 12 then
-					error("Error saving data!")
+					print("Error saving data!")
 					localPlayer:Kick("Critical Error Creating Character")
 					return
 				end
 			until PlayerData:Save() == "Saved" and GlobalData:Save() == "Saved"
 
 			print("Character created! (but errored before)")
+			return {true, ""}
 		end
 	else
 		-- displayErrorMessageEvent:FireClient(player, "Username not allowed!")
-		warn("Username not allowed!")
-		return
+		return {false, "Username not allowed!"}
 	end
 end
 
+
 function Module:Start()
-	-- Net:On("CreateCharacter", function(localPlayer, characterName, characterType)
-	-- 	Module:createCharacter(localPlayer, characterName, characterType)
-	-- end)
+	createCharacter.OnServerInvoke = function(player : Player, characterInfo : table)
+		-- characterInfo = {characterName, characterType}
+		return Module:CreateCharacter(player, characterInfo[1], characterInfo[2])
+	end
 end
 
 function Module:Init(otherSystems)
