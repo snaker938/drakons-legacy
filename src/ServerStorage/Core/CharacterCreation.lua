@@ -72,9 +72,6 @@ function Module:CreateCharacter(localPlayer, characterName : string, characterTy
 		PlayerData.Value.CharacterName = characterName
 		PlayerData.Value.ClassType = characterType
 
-		print(SystemsContainer.DataHandling.ProfileHandling:GetSpecificProfileData(localPlayer, 4).Value)
-
-
 		local CurrentlyPlayingProfile = Module:FindProfileToCreate(localPlayer)
 		
 		GlobalData.Value.CurrentlyPlayingProfile = CurrentlyPlayingProfile

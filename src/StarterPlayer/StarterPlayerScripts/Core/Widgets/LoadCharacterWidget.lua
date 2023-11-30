@@ -49,7 +49,7 @@ end
 function Module:DisplayCharacterSlots()
     -- Print the player data of all the profiles
     for _, profileData in ipairs(ProfileCache[LocalPlayer.UserId]) do
-        print("Profile Num " .. _ .. " ", profileData)
+        -- print("Profile Num " .. _ .. " ", profileData)
     end
 end
 

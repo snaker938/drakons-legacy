@@ -134,7 +134,7 @@ function Module:OnPlayerAdded(localPlayer : Player)
 	end)
 	Module:GlobalDataStateChanged(PlayerGlobalData.State, PlayerGlobalData)
 
-	SystemsContainer.WipeData:WipePlayerData(localPlayer, nil, true)
+	-- SystemsContainer.WipeData:WipePlayerData(localPlayer, nil, true)
 
 	-- for i = 1, 4 do
 	-- 	local profileData = DataStoreModule.find("Player", localPlayer.UserId, "Profile_" .. i)
