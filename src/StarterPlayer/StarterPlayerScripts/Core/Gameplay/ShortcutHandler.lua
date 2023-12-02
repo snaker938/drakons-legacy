@@ -10,7 +10,7 @@ local SystemsContainer = {}
 -- // Module // --
 local Module = {}
 
-function Module:DisableDefaultKeybinds(localPlayer : Player)
+function Module:DisableDefaultKeybinds()
     CAS:BindActionAtPriority("DisableI", function()
         return Enum.ContextActionResult.Sink
     end, false, Enum.ContextActionPriority.High.Value, Enum.KeyCode.I)
@@ -20,13 +20,13 @@ function Module:DisableDefaultKeybinds(localPlayer : Player)
     end, false, Enum.ContextActionPriority.High.Value, Enum.KeyCode.L)
 end
 
-function Module:AddCustomKeybinds(localPlayer : Player)
-    -- Setup bridge configurations
-    -- Display Inventory Event
-    -- Display Locker Event
-end
-
 function Module:InputBegan(input, _gameProcessed)
+
+    -- Nothing should happen if the LoadCharacterWidget or CharacterCreationWidget is open
+    if SystemsContainer.ParentSystems.Widgets:IsWidgetOpen("LoadCharacterWidget") or SystemsContainer.ParentSystems.Widgets:IsWidgetOpen("CharacterCreationWidget") then
+        return
+    end
+
     if input.KeyCode == Enum.KeyCode.I then
 		print("Open Inventory!")
 	
@@ -40,7 +40,7 @@ function Module:InputBegan(input, _gameProcessed)
 end
 
 function Module:Start()
-    Module:DisableDefaultKeybinds(localPlayer)
+    Module:DisableDefaultKeybinds()
 
     UserInputService.InputBegan:Connect(function(input, _gameProcessed)
         Module:InputBegan(input, _gameProcessed)

@@ -23,6 +23,14 @@ function Module:ToggleWidget(widgetName, enabled, ...)
 	end
 end
 
+function Module:IsWidgetOpen(widgetName)
+	local cachedModule = WidgetsCache[widgetName]
+	if not cachedModule then
+		return
+	end
+	return cachedModule.Open
+end
+
 function Module:ToggleAllWidgets(enabled)
 	for widgetName, WidgetModule in pairs(WidgetsCache) do
 		if table.find(DEFAULT_WIDGET_IGNORE_LIST, widgetName) then

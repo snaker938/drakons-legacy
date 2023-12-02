@@ -6,7 +6,7 @@ local ReplicatedModules = require(ReplicatedStorage:WaitForChild('Modules'))
 local Trove = ReplicatedModules.Classes.Trove
 
 local Interface = LocalPlayer:WaitForChild('PlayerGui')
-local LoadCharacterWidget = Interface:WaitForChild('SelectCharacter') :: ScreenGui
+local LoadCharacterWidget = Interface:WaitForChild('SelectProfile') :: ScreenGui
 
 local SystemsContainer = {}
 local WidgetControllerModule = {}
@@ -20,6 +20,7 @@ local ProfileCache = {}
 
 local ProfileNumClicked = 1
 local ProfileNameClicked = ""
+
 
 ----- Replica Data -----
 
@@ -37,7 +38,6 @@ local Module = {}
 
 Module.WidgetTrove = Trove.new()
 Module.Open = false
-
 
 function Module:UpdateWidget()
     if #ProfileCache[LocalPlayer.UserId] == 0 then
@@ -64,6 +64,10 @@ function Module:LoadWidget()
     Module.WidgetTrove:Add(LoadCharacterWidget.WipeDataBtn.Activated:Connect(function()
         Module:WipeData()
     end))
+
+    if #ProfileCache[LocalPlayer.UserId] == 4 then
+        LoadCharacterWidget.CreateButton.Visible = false
+    end
 
     -- Click the first profile
     Module:ProfileClicked(LoadCharacterWidget.CurrentCharacters.CharacterContainer:FindFirstChild("CharSlot_1"), true)
@@ -199,6 +203,7 @@ function Module:CloseWidget()
     Module.WidgetTrove:Destroy()
 end
 
+
 function Module:Start()
 
     Module.WidgetTrove:Add(getAllProfileData:Connect(function(playerData)
@@ -206,6 +211,8 @@ function Module:Start()
         -- print(ProfileCache[LocalPlayer.UserId], #ProfileCache[LocalPlayer.UserId])
         Module:OpenWidget()
     end))
+
+
 
 
 
