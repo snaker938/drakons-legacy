@@ -6,15 +6,19 @@ local ReplicatedModules = require(ReplicatedStorage:WaitForChild('Modules'))
 local Trove = ReplicatedModules.Classes.Trove
 
 local Interface = LocalPlayer:WaitForChild('PlayerGui')
-local LoadCharacterWidget = Interface:WaitForChild('LoadCharacter') :: ScreenGui
+local LoadCharacterWidget = Interface:WaitForChild('SelectCharacter') :: ScreenGui
 
 local SystemsContainer = {}
 local WidgetControllerModule = {}
 
 local BridgeNet2 = require(ReplicatedStorage.Packages.BridgeNet2)
 local getAllProfileData = BridgeNet2.ClientBridge("getAllProfileData")
+local wipeAllData = BridgeNet2.ClientBridge("wipeAllData")
 
 local ProfileCache = {}
+
+local ProfileNumClicked = 1
+local ProfileNameClicked = ""
 
 ----- Replica Data -----
 
@@ -34,23 +38,122 @@ Module.WidgetTrove = Trove.new()
 Module.Open = false
 
 
-
 function Module:UpdateWidget()
     if #ProfileCache[LocalPlayer.UserId] == 0 then
         Module:CloseWidget()
         WidgetControllerModule:ToggleWidget("CharacterCreationWidget", true, true)
         return false
     else
-        Module:DisplayCharacterSlots()
+        Module:LoadWidget()
         return true
     end
 end
 
-function Module:DisplayCharacterSlots()
-    -- Print the player data of all the profiles
-    for _, profileData in ipairs(ProfileCache[LocalPlayer.UserId]) do
-        -- print("Profile Num " .. _ .. " ", profileData)
+function Module:LoadWidget()
+    Module:DisplayCharacterSlots()
+
+    Module.WidgetTrove:Add(LoadCharacterWidget.PlayButton.Activated:Connect(function()
+        Module:PlayProfile()
+    end))
+
+    Module.WidgetTrove:Add(LoadCharacterWidget.CreateButton.Activated:Connect(function()
+        Module:CreateProfile()
+    end))
+
+    Module.WidgetTrove:Add(LoadCharacterWidget.WipeDataBtn.Activated:Connect(function()
+        Module:WipeData()
+    end))
+
+    -- Click the first profile
+    Module:ProfileClicked(LoadCharacterWidget.CurrentCharacters.CharacterContainer:FindFirstChild("CharSlot_1"), true)
+
+    LoadCharacterWidget.CharacterNameHolder.CharacterName.Text = ProfileNameClicked
+end
+
+function Module:PlayProfile()
+    print("User wants to play profile " .. ProfileNumClicked)
+end
+
+function Module:CreateProfile()
+    Module:CloseWidget()
+    WidgetControllerModule:ToggleWidget("CharacterCreationWidget", true, false)
+end
+
+function Module:WipeData()
+    wipeAllData:Fire()
+end
+
+function Module:ProfileClicked(profileButton : TextButton, firstTime : boolean)
+
+    -- If the profile is already clicked, don't do anything, unless it's the first time
+    if tonumber(profileButton.Name:match("%d+")) == ProfileNumClicked and not firstTime then
+        return
     end
+
+    local function unClickOtherClasses()
+        local otherClasses = LoadCharacterWidget.CurrentCharacters.CharacterContainer:GetChildren()
+        for _,element in ipairs(otherClasses) do
+            if element:IsA("TextButton") then
+                element.BackgroundTransparency = 0
+                element.BorderSizePixel = 0
+            end
+        end
+    end
+
+    unClickOtherClasses()
+
+	profileButton.BackgroundTransparency = 0.3
+    profileButton.BorderSizePixel = 3
+
+    ProfileNumClicked = tonumber(profileButton.Name:match("%d+"))
+    ProfileNameClicked = profileButton.CharName.Text
+end
+
+function Module:HoveringOverProfile(profileButton : TextButton, entering : boolean)
+    if tonumber(profileButton.Name:match("%d+")) == ProfileNumClicked then
+        return
+    elseif entering then
+        profileButton.BackgroundTransparency = 0.6
+    else
+        profileButton.BackgroundTransparency = 0
+    end
+end
+
+function Module:DisplayCharacterSlots()
+    for profileNum, profileData in ipairs(ProfileCache[LocalPlayer.UserId]) do
+        local CharSlotClone = LoadCharacterWidget.CurrentCharacters.CharacterContainer.CharSlotTemplate:Clone()
+       
+        CharSlotClone.Name = "CharSlot_" .. profileNum
+        CharSlotClone.Visible = true
+
+        -- Add the data to the character slot
+
+        CharSlotClone.CharName.Text = profileData.CharacterName
+        CharSlotClone.CharClass.Text = profileData.ClassType
+        CharSlotClone.CharLevel.Text = profileData.CharacterLevel
+        if profileData.LastUrbanArea == "" then
+            CharSlotClone.CharArea.Text = "Starfall Bastion"
+        else
+            CharSlotClone.CharArea.Text = profileData.LastUrbanArea
+        end
+
+        -- Add the connections to check hovering and clicked
+        Module.WidgetTrove:Add(CharSlotClone.Activated:Connect(function()
+            Module:ProfileClicked(CharSlotClone, false)
+        end))
+
+        Module.WidgetTrove:Add(CharSlotClone.MouseEnter:Connect(function()
+            Module:HoveringOverProfile(CharSlotClone, true)
+        end))
+
+        Module.WidgetTrove:Add(CharSlotClone.MouseLeave:Connect(function()
+            Module:HoveringOverProfile(CharSlotClone, false)
+        end))
+
+        CharSlotClone.Parent = LoadCharacterWidget.CurrentCharacters.CharacterContainer
+    end
+
+
 end
 
 function Module:OpenWidget()
@@ -59,6 +162,9 @@ function Module:OpenWidget()
     end
     
     Module.Open = true
+
+    ProfileNumClicked = 1
+    ProfileNameClicked = ""
 
     if Module:UpdateWidget() then
         LoadCharacterWidget.Enabled = true
@@ -73,6 +179,13 @@ function Module:CloseWidget()
     end
     
     Module.Open = false
+
+    -- Clear the character slots
+    for _, CharSlot in ipairs(LoadCharacterWidget.CurrentCharacters.CharacterContainer:GetChildren()) do
+        if CharSlot:IsA("TextButton") and not (CharSlot.Name == "CharSlotTemplate") then
+            CharSlot:Destroy()
+        end
+    end
 
     LoadCharacterWidget.Enabled = false
     Module.WidgetTrove:Destroy()

@@ -33,6 +33,11 @@ function Module:UpdateWidget(noCharacters)
     Module:ClassTypeButtonClicked(CreateCharacterWidget.ClassTypes:FindFirstChild(classTypeClicked))
 end
 
+function Module:BackButtonClicked()
+    Module:CloseWidget()
+    WidgetControllerModule:ToggleWidget("LoadCharacterWidget", true)
+end
+
 function Module:OpenWidget(...)
     if Module.Open then
         return
@@ -40,6 +45,8 @@ function Module:OpenWidget(...)
 
     classTypeClicked = "Battlelord"
     isErrored = false
+    CreateCharacterWidget.UsernameInputImage.UsernameInputBox.Text = ""
+
 
     local ClassTypesFrame = CreateCharacterWidget.ClassTypes :: Frame
     local ClassTypeButtons = ClassTypesFrame:GetChildren()
@@ -59,6 +66,10 @@ function Module:OpenWidget(...)
             end))
         end
     end
+
+    Module.WidgetTrove:Add(CreateCharacterWidget.BackButton.Activated:Connect(function()
+        Module:BackButtonClicked()
+    end))
 
     local CreateButton = CreateCharacterWidget.Description.CreateButton :: ImageButton
     Module.WidgetTrove:Add(CreateButton.Activated:Connect(function()

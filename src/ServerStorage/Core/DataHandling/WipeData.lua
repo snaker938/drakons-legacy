@@ -1,6 +1,10 @@
 local ServerStorage = game:GetService('ServerStorage')
 local ServerModules = require(ServerStorage:WaitForChild("Modules"))
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local BridgeNet2 = require(ReplicatedStorage.Packages.BridgeNet2)
+local wipeAllData = BridgeNet2.ServerBridge("wipeAllData")
+
 local Packages = game:GetService("ReplicatedStorage").Packages
 
 local SystemsContainer = {}
@@ -27,6 +31,9 @@ end
 
 
 function Module:Start()
+	wipeAllData:Connect(function(player)
+		Module:WipePlayerData(player, nil, true)
+	end)
 end
 
 function Module:Init(otherSystems)
