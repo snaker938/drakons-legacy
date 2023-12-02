@@ -2,7 +2,9 @@ local ServerStorage = game:GetService('ServerStorage')
 local ServerModules = require(ServerStorage:WaitForChild("Modules"))
 local DataStoreModule = ServerModules.Services.DataStore
 
-local Packages = game:GetService("ReplicatedStorage").Packages
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local BridgeNet2 = require(ReplicatedStorage.Packages.BridgeNet2)
+local playCharacter = BridgeNet2.ServerBridge("playCharacter")
 
 
 local Players = game:GetService("Players")
@@ -26,10 +28,10 @@ function Module:PlaySelectedCharacter(localPlayer : Player, playSlot)
 
 	if playSlot > GlobalData.Value.NumSlotsUsed then localPlayer:Kick("Critical Error Occured") end
 	
-	GlobalData.Value.CurrentlyPlayingProfile = playSlot	
+	GlobalData.Value.CurrentlyPlayingProfile = playSlot
 	
 	if GlobalData:Save() == "Saved" then
-		print("Teleporting player to Starfall Bastion")
+		print("User is now playing profile " .. playSlot)
 	else
 		local errorCount = 0
 		repeat
@@ -49,9 +51,9 @@ function Module:PlaySelectedCharacter(localPlayer : Player, playSlot)
 end
 
 function Module:Start()
-	-- Net:On("PlaySelectedCharacter", function(localPlayer, playSlot)
-	-- 	Module:PlaySelectedCharacter(localPlayer, playSlot)
-	-- end)
+	playCharacter:Connect(function(player, playSlot)
+		Module:PlaySelectedCharacter(player, playSlot)
+	end)
 end
 
 function Module:Init(otherSystems)

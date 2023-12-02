@@ -36,7 +36,7 @@ local ProfileDataTemplate = {
 }
 
 local GlobalDataTemplate = {
-	NumSlotsUsed = -1,
+	NumSlotsUsed = 0,
 	CurrentlyPlayingProfile = -1,
 	Draken = 0,
 	Banned = false,

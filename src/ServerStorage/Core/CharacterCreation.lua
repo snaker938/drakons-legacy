@@ -67,7 +67,7 @@ function Module:CreateCharacter(localPlayer, characterName : string, characterTy
 	if isUsernameAlright then
 		local GlobalData = SystemsContainer.DataHandling.ProfileHandling:GetCurrentUserData(localPlayer, "global")
 
-		local PlayerData = SystemsContainer.DataHandling.ProfileHandling:GetSpecificProfileData(localPlayer, Module:FindProfileToCreate(localPlayer) + 1)
+		local PlayerData = SystemsContainer.DataHandling.ProfileHandling:GetSpecificProfileData(localPlayer, Module:FindProfileToCreate(localPlayer))
 
 		PlayerData.Value.CharacterName = characterName
 		PlayerData.Value.ClassType = characterType

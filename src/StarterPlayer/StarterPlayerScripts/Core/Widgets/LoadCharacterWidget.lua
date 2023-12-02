@@ -14,6 +14,7 @@ local WidgetControllerModule = {}
 local BridgeNet2 = require(ReplicatedStorage.Packages.BridgeNet2)
 local getAllProfileData = BridgeNet2.ClientBridge("getAllProfileData")
 local wipeAllData = BridgeNet2.ClientBridge("wipeAllData")
+local playCharacter = BridgeNet2.ClientBridge("playCharacter")
 
 local ProfileCache = {}
 
@@ -71,7 +72,12 @@ function Module:LoadWidget()
 end
 
 function Module:PlayProfile()
-    print("User wants to play profile " .. ProfileNumClicked)
+    if ProfileNameClicked == "" then
+        return
+    end
+
+    playCharacter:Fire(ProfileNumClicked)
+    Module:CloseWidget()
 end
 
 function Module:CreateProfile()
@@ -107,6 +113,8 @@ function Module:ProfileClicked(profileButton : TextButton, firstTime : boolean)
 
     ProfileNumClicked = tonumber(profileButton.Name:match("%d+"))
     ProfileNameClicked = profileButton.CharName.Text
+
+    LoadCharacterWidget.CharacterNameHolder.CharacterName.Text = ProfileNameClicked
 end
 
 function Module:HoveringOverProfile(profileButton : TextButton, entering : boolean)
@@ -198,6 +206,8 @@ function Module:Start()
         -- print(ProfileCache[LocalPlayer.UserId], #ProfileCache[LocalPlayer.UserId])
         Module:OpenWidget()
     end))
+
+
 
     -- ReplicaController.ReplicaOfClassCreated("PlayerProfile_" .. LocalPlayer.UserId, function(replica)
     --     local is_local = replica.Tags.Player == LocalPlayer
