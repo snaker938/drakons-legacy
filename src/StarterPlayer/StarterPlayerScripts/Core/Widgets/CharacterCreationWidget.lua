@@ -120,8 +120,16 @@ function Module:CreateCharacter()
         CreateCharacterWidget.UsernameInputImage.UsernameInputBox.Text = errorText
         isErrored = true
     else
-        print("Closig widget")
         Module:CloseWidget()
+
+        local camera = workspace.CurrentCamera
+        camera.CameraType = Enum.CameraType.Custom
+
+
+        local playerScripts = LocalPlayer:WaitForChild("PlayerScripts")
+        local PlayerModule = require(playerScripts:WaitForChild("PlayerModule"))
+        local controls = PlayerModule:GetControls()
+        controls:Enable()
     end
 end
 

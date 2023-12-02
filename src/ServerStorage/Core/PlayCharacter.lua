@@ -32,6 +32,7 @@ function Module:PlaySelectedCharacter(localPlayer : Player, playSlot)
 	
 	if GlobalData:Save() == "Saved" then
 		print("User is now playing profile " .. playSlot)
+		SystemsContainer.DataHandling.DataServer:CloseDataStoresNotInUse(localPlayer)
 	else
 		local errorCount = 0
 		repeat
@@ -46,7 +47,8 @@ function Module:PlaySelectedCharacter(localPlayer : Player, playSlot)
 			end
 		until GlobalData:Save() == "Saved"
 
-		print("Teleporting player to Starfall Bastion (but errored)")
+		print("User is now playing profile (errored)" .. playSlot)
+		SystemsContainer.DataHandling.DataServer:CloseDataStoresNotInUse(localPlayer)
 	end
 end
 

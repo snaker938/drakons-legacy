@@ -10,7 +10,7 @@ require(LocalPlayer:WaitForChild('PlayerScripts'):WaitForChild('Core'))
 local Data = require(ReplicatedStorage:WaitForChild('Framework'))
 Data.Start()
 
----------------------------------------------- Loading Bar ----------------------------------------------------------------------------------
+---------------------------------------------- Loading Bar ---------------------------------------------------------------------
 -- SERVICES --
 local ContentProvider = game:GetService("ContentProvider")
 local Players = game:GetService("Players")
@@ -25,7 +25,6 @@ local assets = game:GetDescendants()
 local camera = workspace.CurrentCamera
 local cameraPart = workspace:WaitForChild("CameraPart")
 camera.CameraType = Enum.CameraType.Scriptable
-
 camera.CFrame = cameraPart.CFrame
 
 

@@ -209,6 +209,9 @@ end
 -- Replica Handling
 
 function Module:ReplicateDataToClient(localPlayer : Player, playSlot : number)
+	warn("TO FINISH: Replicating data to client")
+	if true then return end
+	warn("THIS SHOULD NOT BE PRINTING!!")
 	-- Profile Replica
     local PlayerProfileClassToken = ReplicaService.NewClassToken("PlayerProfile_" .. localPlayer.UserId)
 

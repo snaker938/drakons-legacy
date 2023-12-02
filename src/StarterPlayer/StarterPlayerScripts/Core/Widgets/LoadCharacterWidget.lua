@@ -82,6 +82,16 @@ function Module:PlayProfile()
 
     playCharacter:Fire(ProfileNumClicked)
     Module:CloseWidget()
+
+    local camera = workspace.CurrentCamera
+    camera.CameraType = Enum.CameraType.Custom
+
+
+    local playerScripts = LocalPlayer:WaitForChild("PlayerScripts")
+    local PlayerModule = require(playerScripts:WaitForChild("PlayerModule"))
+    local controls = PlayerModule:GetControls()
+
+    controls:Enable()
 end
 
 function Module:CreateProfile()
@@ -211,10 +221,6 @@ function Module:Start()
         -- print(ProfileCache[LocalPlayer.UserId], #ProfileCache[LocalPlayer.UserId])
         Module:OpenWidget()
     end))
-
-
-
-
 
     -- ReplicaController.ReplicaOfClassCreated("PlayerProfile_" .. LocalPlayer.UserId, function(replica)
     --     local is_local = replica.Tags.Player == LocalPlayer

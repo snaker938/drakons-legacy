@@ -79,6 +79,8 @@ function Module:CreateCharacter(localPlayer, characterName : string, characterTy
 		
 		if PlayerData:Save() == "Saved" and GlobalData:Save() == "Saved" then
 			print("Character created!")
+			-- Close data stores not in use
+			SystemsContainer.DataHandling.DataServer:CloseDataStoresNotInUse(localPlayer)
 			return {true, ""}
 			-- local TARGET_PLACE_ID = 14169281935 -- Starfall Bastion
 
@@ -102,6 +104,7 @@ function Module:CreateCharacter(localPlayer, characterName : string, characterTy
 			until PlayerData:Save() == "Saved" and GlobalData:Save() == "Saved"
 
 			print("Character created! (but errored before)")
+			SystemsContainer.DataHandling.DataServer:CloseDataStoresNotInUse(localPlayer)
 			return {true, ""}
 		end
 	else
