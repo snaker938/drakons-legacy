@@ -16,8 +16,6 @@ local getAllProfileData = BridgeNet2.ClientBridge("getAllProfileData")
 local wipeAllData = BridgeNet2.ClientBridge("wipeAllData")
 local playCharacter = BridgeNet2.ClientBridge("playCharacter")
 
-local ProfileCache = {}
-
 local ProfileNumClicked = 1
 local ProfileNameClicked = ""
 
@@ -36,11 +34,13 @@ local ProfileNameClicked = ""
 -- // Module // --
 local Module = {}
 
+Module.ProfileCache = {}
+
 Module.WidgetTrove = Trove.new()
 Module.Open = false
 
 function Module.UpdateWidget()
-    if #ProfileCache[LocalPlayer.UserId] == 0 then
+    if #(Module.ProfileCache[LocalPlayer.UserId]) == 0 then
         Module.CloseWidget()
         WidgetControllerModule.ToggleWidget("CharacterCreationWidget", true, true)
         return false
@@ -65,7 +65,7 @@ function Module.LoadWidget()
         Module.WipeData()
     end))
 
-    if #ProfileCache[LocalPlayer.UserId] == 4 then
+    if #(Module.ProfileCache[LocalPlayer.UserId]) == 4 then
         LoadCharacterWidget.CreateButton.Visible = false
     end
 
@@ -142,7 +142,7 @@ function Module.HoveringOverProfile(profileButton : TextButton, entering : boole
 end
 
 function Module.DisplayCharacterSlots()
-    for profileNum, profileData in ipairs(ProfileCache[LocalPlayer.UserId]) do
+    for profileNum, profileData in ipairs(Module.ProfileCache[LocalPlayer.UserId]) do
         local CharSlotClone = LoadCharacterWidget.CurrentCharacters.CharacterContainer.CharSlotTemplate:Clone()
        
         CharSlotClone.Name = "CharSlot_" .. profileNum
@@ -217,7 +217,7 @@ end
 function Module.Start()
 
     Module.WidgetTrove:Add(getAllProfileData:Connect(function(playerData)
-        ProfileCache[LocalPlayer.UserId] = playerData
+        Module.ProfileCache[LocalPlayer.UserId] = playerData
         -- print(ProfileCache[LocalPlayer.UserId], #ProfileCache[LocalPlayer.UserId])
         Module.OpenWidget()
     end))
@@ -232,6 +232,7 @@ function Module.Start()
     --     print(replica_data)
     -- end)
 end
+
 
 function Module.Init(ParentController, otherSystems)
     WidgetControllerModule = ParentController

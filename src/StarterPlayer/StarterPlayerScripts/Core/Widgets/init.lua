@@ -18,7 +18,13 @@ function Module.ToggleWidget(widgetName, enabled, ...)
 	end
 	if enabled then
 		cachedModule.OpenWidget(...)
-	else
+	elseif enabled == nil then
+		if cachedModule.Open then
+			cachedModule.CloseWidget()
+		else
+			cachedModule.OpenWidget(...)
+		end
+	elseif not enabled then
 		cachedModule.CloseWidget()
 	end
 end

@@ -28,14 +28,10 @@ function Module.InputBegan(input, _gameProcessed)
     end
 
     if input.KeyCode == Enum.KeyCode.I then
-		print("Open Inventory!")
-	
-		-- Fire Server
-	
+        SystemsContainer.ParentSystems.Widgets.ToggleWidget("InventoryWidget", nil)
 	elseif input.KeyCode == Enum.KeyCode.L then
-        print("Open Locker!")
-        
-		-- Fire Server
+        print("Toggle Locker!")
+    
 	end
 end
 

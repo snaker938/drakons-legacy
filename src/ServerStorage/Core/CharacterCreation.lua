@@ -1,9 +1,6 @@
 local ServerStorage = game:GetService('ServerStorage')
 local ServerModules = require(ServerStorage:WaitForChild("Modules"))
-local DataStoreModule = ServerModules.Services.DataStore
 local VerifyText = ServerModules.Utility.VerifyText
-
-local Packages = game:GetService("ReplicatedStorage").Packages
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local BridgeNet2 = require(ReplicatedStorage.Packages.BridgeNet2)
