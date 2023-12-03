@@ -1,11 +1,11 @@
+local SystemsContainer = {}
+
 local Module = {}
 
 local TextService = game:GetService("TextService")
---local ReplicatedStorage = game:GetService("ReplicatedStorage")
---local displayErrorMessageEvent = ReplicatedStorage:WaitForChild("displayErrorMessage")
 
 
-function Module:GetTextObject(message, fromPlayerId)
+function Module.GetTextObject(message, fromPlayerId)
 	local textObject
 	local success, errorMessage = pcall(function()
 		textObject = TextService:FilterStringAsync(message, fromPlayerId)
@@ -19,7 +19,7 @@ function Module:GetTextObject(message, fromPlayerId)
 end
 
 
-function Module:GetFilteredMessage(textObject)
+function Module.GetFilteredMessage(textObject)
 	local filteredMessage
 	local success, errorMessage = pcall(function()
 		filteredMessage = textObject:GetNonChatStringForBroadcastAsync()
@@ -33,7 +33,7 @@ function Module:GetFilteredMessage(textObject)
 end
 
 
-function Module:HasSpecialCharacters(username)
+function Module.HasSpecialCharacters(username)
 	-- Define the pattern to match allowed characters (letters, numbers, and underscores)
 	local allowedPattern = "[A-Za-z0-9_]+"
 
@@ -42,40 +42,40 @@ function Module:HasSpecialCharacters(username)
 	return not string.match(username, "^" .. allowedPattern .. "$")
 end
 
-function Module:IsValidLength(username)
+function Module.IsValidLength(username)
 	return string.len(username) >= 3 and string.len(username) <= 20
 end
 
-function Module:IsValidUnderscorePlacement(username)
+function Module.IsValidUnderscorePlacement(username)
 	return string.sub(username, 1, 1) ~= "_" and string.sub(username, -1) ~= "_"
 end
 
-function Module:IsValidUnderscoreCount(username)
+function Module.IsValidUnderscoreCount(username)
 	local underscoreCount = select(2, string.gsub(username, "_", "_"))
 	return underscoreCount <= 1
 end
 
-function Module:VerifyText(player : Player, text : string, usage : string)
+function Module.VerifyText(player : Player, text : string, usage : string)
 	if usage == "username" then
 		local username = text
 		if username == "" then
 			--displayErrorMessageEvent:FireClient("Username cannot be empty")
 			return false
-		elseif not Module:IsValidLength(username) then
+		elseif not Module.IsValidLength(username) then
 			--displayErrorMessageEvent:FireClient("Username must be between 3 and 20 characters")
 			return false
-		elseif Module:HasSpecialCharacters(username) or not Module:IsValidUnderscoreCount(username) then
+		elseif Module.HasSpecialCharacters(username) or not Module.IsValidUnderscoreCount(username) then
 			--displayErrorMessageEvent:FireClient("Username can only contain one underscore _ character")
 			return false
 		elseif string.find(username, "%s") then
 			--displayErrorMessageEvent:FireClient("Username cannot contain spaces")
 			return false
-		elseif not Module:IsValidUnderscorePlacement(username) then
+		elseif not Module.IsValidUnderscorePlacement(username) then
 			--displayErrorMessageEvent:FireClient("Username cannot start or end with an underscore")
 			return false
 		else
 			--Filter the incoming message and check it against the original to make sure they match
-			local filteredText = Module:GetFilteredMessage(Module:GetTextObject(username, player.UserId)) 
+			local filteredText = Module.GetFilteredMessage(Module.GetTextObject(username, player.UserId)) 
 
 			if not filteredText then
 				return false
@@ -95,6 +95,14 @@ function Module:VerifyText(player : Player, text : string, usage : string)
 			return true
 		end
 	end
+end
+
+function Module.Start()
+
+end
+
+function Module.Init(otherSystems)
+    SystemsContainer = otherSystems
 end
 
 return Module

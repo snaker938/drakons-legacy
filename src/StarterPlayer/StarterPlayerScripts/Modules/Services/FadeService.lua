@@ -1,6 +1,8 @@
+local SystemsContainer = {}
+
 local Module = {}
 
-function Module:Fade(BlackScreenHolder, startGUI, endGUI, timeOfFade)
+function Module.Fade(BlackScreenHolder, startGUI, endGUI, timeOfFade)
 	local TweenService = game:GetService("TweenService")
 	startGUI.Enabled = false
 	local BlackScreen = BlackScreenHolder:WaitForChild("BlackScreen")
@@ -14,6 +16,14 @@ function Module:Fade(BlackScreenHolder, startGUI, endGUI, timeOfFade)
 		BlackScreen.BackgroundTransparency = 0
 		fade:Destroy()
 	end)
+end
+
+function Module.Start()
+    
+end
+
+function Module.Init(otherSystems)
+    SystemsContainer = otherSystems
 end
 
 

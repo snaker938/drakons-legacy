@@ -23,6 +23,7 @@ local function cacheParent( _, Parent )
 		end
 	end
 
+
 	-- Initialize
 	for preLoadedName, preLoaded in pairs(Cache) do
 		if typeof(preLoaded) ~= 'table' or preLoaded.Initialised or (not hasInit(preLoaded)) then
@@ -36,7 +37,7 @@ local function cacheParent( _, Parent )
 			accessibles[otherLoadedName] = differentLoaded
 		end
 		preLoaded.Initialised = true
-		preLoaded:Init(accessibles)
+		preLoaded.Init(accessibles)
 	end
 
 	return Cache
@@ -50,7 +51,7 @@ local function startFramework()
 			end
 			preLoaded.Started = true
 			print("Starting module: " .. moduleName)
-			preLoaded:Start()
+			preLoaded.Start()
 		end
 	end
 end

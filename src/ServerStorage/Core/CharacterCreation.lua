@@ -14,8 +14,8 @@ local SystemsContainer = {}
 -- // Module // --
 local Module = {}
 
-function Module:FindProfileToCreate(localPlayer : Player)
-	local GlobalPlayerData = SystemsContainer.DataHandling.ProfileHandling:GetCurrentUserData(localPlayer, "global")
+function Module.FindProfileToCreate(localPlayer : Player)
+	local GlobalPlayerData = SystemsContainer.DataHandling.ProfileHandling.GetCurrentUserData(localPlayer, "global")
 
 
 	if GlobalPlayerData.Value.NumSlotsUsed == 4 then
@@ -26,8 +26,8 @@ function Module:FindProfileToCreate(localPlayer : Player)
 	return GlobalPlayerData.Value.NumSlotsUsed + 1
 end
 
-function Module:CheckIfAllProfilesAreUsed(localPlayer : Player)
-	if SystemsContainer.DataHandling.ProfileHandling:GetCurrentUserData(localPlayer, "global").Value.NumSlotsUsed == 4 then
+function Module.CheckIfAllProfilesAreUsed(localPlayer : Player)
+	if SystemsContainer.DataHandling.ProfileHandling.GetCurrentUserData(localPlayer, "global").Value.NumSlotsUsed == 4 then
 		return true
 	else
 		return false
@@ -35,7 +35,7 @@ function Module:CheckIfAllProfilesAreUsed(localPlayer : Player)
 end
 
 
-function Module:CreateCharacter(localPlayer, characterName : string, characterType : string)
+function Module.CreateCharacter(localPlayer, characterName : string, characterType : string)
 	-- if not localPlayer or not characterName or not characterType then return false end
 	if not localPlayer then return {false, "Critical Error Occured"} end
 	if not characterType then localPlayer:Kick("Critical Error Creating Character") end
@@ -54,7 +54,7 @@ function Module:CreateCharacter(localPlayer, characterName : string, characterTy
 	end
 	
 	
-	if Module:CheckIfAllProfilesAreUsed(localPlayer) then
+	if Module.CheckIfAllProfilesAreUsed(localPlayer) then
 		-- displayErrorMessageEvent:FireClient(player, "All profile slots used!")
 		print("All profile slots used!")
 		return {false, "All profile slots used!"}
@@ -62,17 +62,17 @@ function Module:CreateCharacter(localPlayer, characterName : string, characterTy
 
 	
 	-- local isUsernameAlright = verifyUsernameInputEvent:Invoke(player, characterName)
-	local isUsernameAlright = VerifyText:VerifyText(localPlayer, characterName, "username")
+	local isUsernameAlright = VerifyText.VerifyText(localPlayer, characterName, "username")
 	
 	if isUsernameAlright then
-		local GlobalData = SystemsContainer.DataHandling.ProfileHandling:GetCurrentUserData(localPlayer, "global")
+		local GlobalData = SystemsContainer.DataHandling.ProfileHandling.GetCurrentUserData(localPlayer, "global")
 
-		local PlayerData = SystemsContainer.DataHandling.ProfileHandling:GetSpecificProfileData(localPlayer, Module:FindProfileToCreate(localPlayer))
+		local PlayerData = SystemsContainer.DataHandling.ProfileHandling.GetSpecificProfileData(localPlayer, Module.FindProfileToCreate(localPlayer))
 
 		PlayerData.Value.CharacterName = characterName
 		PlayerData.Value.ClassType = characterType
 
-		local CurrentlyPlayingProfile = Module:FindProfileToCreate(localPlayer)
+		local CurrentlyPlayingProfile = Module.FindProfileToCreate(localPlayer)
 		
 		GlobalData.Value.CurrentlyPlayingProfile = CurrentlyPlayingProfile
 		GlobalData.Value.NumSlotsUsed = CurrentlyPlayingProfile
@@ -80,7 +80,7 @@ function Module:CreateCharacter(localPlayer, characterName : string, characterTy
 		if PlayerData:Save() == "Saved" and GlobalData:Save() == "Saved" then
 			print("Character created!")
 			-- Close data stores not in use
-			SystemsContainer.DataHandling.DataServer:CloseDataStoresNotInUse(localPlayer)
+			SystemsContainer.DataHandling.DataServer.CloseDataStoresNotInUse(localPlayer)
 			return {true, ""}
 			-- local TARGET_PLACE_ID = 14169281935 -- Starfall Bastion
 
@@ -104,7 +104,7 @@ function Module:CreateCharacter(localPlayer, characterName : string, characterTy
 			until PlayerData:Save() == "Saved" and GlobalData:Save() == "Saved"
 
 			print("Character created! (but errored before)")
-			SystemsContainer.DataHandling.DataServer:CloseDataStoresNotInUse(localPlayer)
+			SystemsContainer.DataHandling.DataServer.CloseDataStoresNotInUse(localPlayer)
 			return {true, ""}
 		end
 	else
@@ -114,14 +114,14 @@ function Module:CreateCharacter(localPlayer, characterName : string, characterTy
 end
 
 
-function Module:Start()
+function Module.Start()
 	createCharacter.OnServerInvoke = function(player : Player, characterInfo : table)
 		-- characterInfo = {characterName, characterType}
-		return Module:CreateCharacter(player, characterInfo[1], characterInfo[2])
+		return Module.CreateCharacter(player, characterInfo[1], characterInfo[2])
 	end
 end
 
-function Module:Init(otherSystems)
+function Module.Init(otherSystems)
 	SystemsContainer = otherSystems
 end
 

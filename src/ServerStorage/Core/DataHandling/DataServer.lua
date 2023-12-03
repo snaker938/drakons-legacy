@@ -54,7 +54,7 @@ local GlobalProfiles = {} -- [player] = {Global = global, Replica = replica}
 -- // Module // --
 local Module = {ProfileDataTemplate = ProfileDataTemplate, GlobalDataTemplate = GlobalDataTemplate}
 
-function Module:GetDataTemplate(type)
+function Module.GetDataTemplate(type)
 	if type == "player" then
 		return ProfileDataTemplate
 	elseif type == "global" then
@@ -62,24 +62,24 @@ function Module:GetDataTemplate(type)
 	end
 end
 
-function Module:ProfileStateChanged(state, dataStore)
+function Module.ProfileStateChanged(state, dataStore)
 	while dataStore.State == false do
 		if dataStore:Open(ProfileDataTemplate) ~= "Success" then task.wait(6) end
 	end
 end
 
-function Module:GlobalDataStateChanged(state, dataStore)
+function Module.GlobalDataStateChanged(state, dataStore)
 	while dataStore.State == false do
 		if dataStore:Open(GlobalDataTemplate) ~= "Success" then task.wait(6) end
 	end
 end
 
-function Module:CloseDataStoresNotInUse(localPlayer : Player)
-	local globalData = SystemsContainer.ProfileHandling:GetCurrentUserData(localPlayer, "global")
+function Module.CloseDataStoresNotInUse(localPlayer : Player)
+	local globalData = SystemsContainer.ProfileHandling.GetCurrentUserData(localPlayer, "global")
 	local CurrentlyPlayingProfile = globalData.Value.CurrentlyPlayingProfile
 
     for profileNum = 1, 4 do
-		local profileData = SystemsContainer.ProfileHandling:GetSpecificProfileData(localPlayer, profileNum)
+		local profileData = SystemsContainer.ProfileHandling.GetSpecificProfileData(localPlayer, profileNum)
 
 		if profileNum == tonumber(CurrentlyPlayingProfile) then
 			continue
@@ -88,15 +88,15 @@ function Module:CloseDataStoresNotInUse(localPlayer : Player)
 		end
 	end
 
-	Module:ReplicateDataToClient(localPlayer, CurrentlyPlayingProfile)
+	Module.ReplicateDataToClient(localPlayer, CurrentlyPlayingProfile)
 end
 
-function Module:SetCurrentlyPlayingToFalse(localPlayer : Player)
- 	local GlobalData = SystemsContainer.ProfileHandling:GetCurrentUserData(localPlayer, "global")
+function Module.SetCurrentlyPlayingToFalse(localPlayer : Player)
+ 	local GlobalData = SystemsContainer.ProfileHandling.GetCurrentUserData(localPlayer, "global")
 	GlobalData.Value.CurrentlyPlayingProfile = -1
 end
 
-function Module:OnPlayerAdded(localPlayer : Player)
+function Module.OnPlayerAdded(localPlayer : Player)
 	if localPlayer:IsDescendantOf(Players) == false then
 		localPlayer:Kick("Critical Error Getting Player Data")
 	end
@@ -110,29 +110,29 @@ function Module:OnPlayerAdded(localPlayer : Player)
 	--local Profile_5_Data = DataStoreModule.new("Player", player.UserId, "Profile_5")
 
 	Profile_1_Data.StateChanged:Connect(function(...)
-		Module:ProfileStateChanged(...)
+		Module.ProfileStateChanged(...)
 	end)
-	Module:ProfileStateChanged(Profile_1_Data.State, Profile_1_Data)
+	Module.ProfileStateChanged(Profile_1_Data.State, Profile_1_Data)
 
 	Profile_2_Data.StateChanged:Connect(function(...)
-		Module:ProfileStateChanged(...)
+		Module.ProfileStateChanged(...)
 	end)
-	Module:ProfileStateChanged(Profile_2_Data.State, Profile_2_Data)
+	Module.ProfileStateChanged(Profile_2_Data.State, Profile_2_Data)
 
 	Profile_3_Data.StateChanged:Connect(function(...)
-		Module:ProfileStateChanged(...)
+		Module.ProfileStateChanged(...)
 	end)
-	Module:ProfileStateChanged(Profile_3_Data.State, Profile_3_Data)
+	Module.ProfileStateChanged(Profile_3_Data.State, Profile_3_Data)
 
 	Profile_4_Data.StateChanged:Connect(function(...)
-		Module:ProfileStateChanged(...)
+		Module.ProfileStateChanged(...)
 	end)
-	Module:ProfileStateChanged(Profile_4_Data.State, Profile_4_Data)
+	Module.ProfileStateChanged(Profile_4_Data.State, Profile_4_Data)
 
 	PlayerGlobalData.StateChanged:Connect(function(...)
-		Module:GlobalDataStateChanged(...)
+		Module.GlobalDataStateChanged(...)
 	end)
-	Module:GlobalDataStateChanged(PlayerGlobalData.State, PlayerGlobalData)
+	Module.GlobalDataStateChanged(PlayerGlobalData.State, PlayerGlobalData)
 
 	-- SystemsContainer.WipeData:WipePlayerData(localPlayer, nil, true)
 
@@ -143,21 +143,21 @@ function Module:OnPlayerAdded(localPlayer : Player)
 	-- 	if profileData.State ~= true then continue end
 	-- end
 
-	SystemsContainer.ProfileHandling:SendLoadProfileDataToClient(localPlayer)
+	SystemsContainer.ProfileHandling.SendLoadProfileDataToClient(localPlayer)
 
 
 	-- profileData = DataStoreModule.find("Player", localPlayer.UserId, "GlobalData")
 	-- print(profileData.Value)
 end
 
-function Module:OnPlayerRemoving(localPlayer)
+function Module.OnPlayerRemoving(localPlayer)
 	local Profile_1_Data = DataStoreModule.find("Player", localPlayer.UserId, "Profile_1")
 	local Profile_2_Data = DataStoreModule.find("Player", localPlayer.UserId, "Profile_2")
 	local Profile_3_Data = DataStoreModule.find("Player", localPlayer.UserId, "Profile_3")
 	local Profile_4_Data = DataStoreModule.find("Player", localPlayer.UserId, "Profile_4")
 	--local Profile_5_Data = DataStoreModule.find("Player", player.UserId, "Profile_5")
 
-	Module:SetCurrentlyPlayingToFalse(localPlayer)
+	Module.SetCurrentlyPlayingToFalse(localPlayer)
 
 
 	if Profile_1_Data ~= nil then Profile_1_Data:Destroy() end
@@ -184,38 +184,38 @@ function Module:OnPlayerRemoving(localPlayer)
 end
 
 
-function Module:Start()
+function Module.Start()
 	for _, localPlayer in ipairs(Players:GetPlayers()) do
 		task.defer(function()
-			Module:OnPlayerAdded(localPlayer)
+			Module.OnPlayerAdded(localPlayer)
 		end)
 	end
 
 	Players.PlayerAdded:Connect(function(localPlayer)
-		Module:OnPlayerAdded(localPlayer)
+		Module.OnPlayerAdded(localPlayer)
 	end)
 	
 	Players.PlayerRemoving:Connect(function(localPlayer)
-		Module:OnPlayerRemoving(localPlayer)
+		Module.OnPlayerRemoving(localPlayer)
 	end)
 
 end
 
-function Module:Init(otherSystems)
+function Module.Init(otherSystems)
 	SystemsContainer = otherSystems
 end
 
 
 -- Replica Handling
 
-function Module:ReplicateDataToClient(localPlayer : Player, playSlot : number)
+function Module.ReplicateDataToClient(localPlayer : Player, playSlot : number)
 	warn("TO FINISH: Replicating data to client")
 	if true then return end
 	warn("THIS SHOULD NOT BE PRINTING!!")
 	-- Profile Replica
     local PlayerProfileClassToken = ReplicaService.NewClassToken("PlayerProfile_" .. localPlayer.UserId)
 
-    local profile = SystemsContainer.ProfileHandling:GetSpecificProfileData(localPlayer, playSlot)
+    local profile = SystemsContainer.ProfileHandling.GetSpecificProfileData(localPlayer, playSlot)
 
     local player_profile = {
 		Profile = profile,
@@ -234,7 +234,7 @@ function Module:ReplicateDataToClient(localPlayer : Player, playSlot : number)
 	-- Global Replica
 	local GlobalProfileClassToken = ReplicaService.NewClassToken("GlobalProfile_" .. localPlayer.UserId)
 
-	local globalProfile = SystemsContainer.ProfileHandling:GetCurrentUserData(localPlayer, "global")
+	local globalProfile = SystemsContainer.ProfileHandling.GetCurrentUserData(localPlayer, "global")
 
 	local global_profile = {
 		Global = globalProfile,
@@ -271,11 +271,11 @@ PlayerProfile.__index = PlayerProfile
 
 GlobalProfile.__index = GlobalProfile
 
-function GlobalProfile:IsActive()
+function GlobalProfile.IsActive(self)
 	return PlayerProfiles[self._player] ~= nil
 end
 
-function PlayerProfile:IsActive() --> is_active
+function PlayerProfile.IsActive(self) --> is_active
 	return GlobalProfiles[self._player] ~= nil
 end
 

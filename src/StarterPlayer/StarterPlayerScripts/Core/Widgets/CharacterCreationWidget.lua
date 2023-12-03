@@ -25,20 +25,20 @@ local Module = {}
 Module.WidgetTrove = Trove.new()
 Module.Open = false
 
-function Module:UpdateWidget(noCharacters)
+function Module.UpdateWidget(noCharacters)
     if noCharacters then
         CreateCharacterWidget.BackButton.Visible = false
     end
 
-    Module:ClassTypeButtonClicked(CreateCharacterWidget.ClassTypes:FindFirstChild(classTypeClicked))
+    Module.ClassTypeButtonClicked(CreateCharacterWidget.ClassTypes:FindFirstChild(classTypeClicked))
 end
 
-function Module:BackButtonClicked()
-    Module:CloseWidget()
-    WidgetControllerModule:ToggleWidget("LoadCharacterWidget", true)
+function Module.BackButtonClicked()
+    Module.CloseWidget()
+    WidgetControllerModule.ToggleWidget("LoadCharacterWidget", true)
 end
 
-function Module:OpenWidget(...)
+function Module.OpenWidget(...)
     if Module.Open then
         return
     end
@@ -54,21 +54,21 @@ function Module:OpenWidget(...)
     for _, ClassTypeButton in ipairs(ClassTypeButtons) do
         if ClassTypeButton:IsA("ImageButton") then
             Module.WidgetTrove:Add(ClassTypeButton.Activated:Connect(function()
-                Module:ClassTypeButtonClicked(ClassTypeButton)
+                Module.ClassTypeButtonClicked(ClassTypeButton)
             end))
 
             Module.WidgetTrove:Add(ClassTypeButton.MouseEnter:Connect(function()
-                Module:HoveringOverClassTypeButton(ClassTypeButton, true)
+                Module.HoveringOverClassTypeButton(ClassTypeButton, true)
             end))
 
             Module.WidgetTrove:Add(ClassTypeButton.MouseLeave:Connect(function()
-                Module:HoveringOverClassTypeButton(ClassTypeButton, false)
+                Module.HoveringOverClassTypeButton(ClassTypeButton, false)
             end))
         end
     end
 
     Module.WidgetTrove:Add(CreateCharacterWidget.BackButton.Activated:Connect(function()
-        Module:BackButtonClicked()
+        Module.BackButtonClicked()
     end))
 
     local CreateButton = CreateCharacterWidget.Description.CreateButton :: ImageButton
@@ -76,7 +76,7 @@ function Module:OpenWidget(...)
         if isErrored then
             return
         end
-        Module:CreateCharacter()
+        Module.CreateCharacter()
     end))
 
     -- On focus, if the text is red, change it back to white and clear the text
@@ -94,12 +94,12 @@ function Module:OpenWidget(...)
 
     Module.Open = true
 
-    Module:UpdateWidget(noCharacters)
+    Module.UpdateWidget(noCharacters)
 
     CreateCharacterWidget.Enabled = true
 end
 
-function Module:CloseWidget()
+function Module.CloseWidget()
     if not Module.Open then
         return
     end
@@ -109,7 +109,7 @@ function Module:CloseWidget()
     Module.WidgetTrove:Destroy()
 end
 
-function Module:CreateCharacter()
+function Module.CreateCharacter()
     local characterName = CreateCharacterWidget.UsernameInputImage.UsernameInputBox.Text
     local result = createCharacter:InvokeServerAsync({characterName, classTypeClicked})
     local success, errorText = result[1] :: boolean, result[2] :: string
@@ -120,7 +120,7 @@ function Module:CreateCharacter()
         CreateCharacterWidget.UsernameInputImage.UsernameInputBox.Text = errorText
         isErrored = true
     else
-        Module:CloseWidget()
+        Module.CloseWidget()
 
         local camera = workspace.CurrentCamera
         camera.CameraType = Enum.CameraType.Custom
@@ -133,7 +133,7 @@ function Module:CreateCharacter()
     end
 end
 
-function Module:ClassTypeButtonClicked(classTypeButton : ImageButton)
+function Module.ClassTypeButtonClicked(classTypeButton : ImageButton)
     local function unClickOtherClasses()
         local otherClasses = CreateCharacterWidget.ClassTypes:GetChildren()
         for _,element in ipairs(otherClasses) do
@@ -150,7 +150,7 @@ function Module:ClassTypeButtonClicked(classTypeButton : ImageButton)
     classTypeClicked = classTypeButton.Name
 end
 
-function Module:HoveringOverClassTypeButton(classTypeButton : ImageButton, entering : boolean)
+function Module.HoveringOverClassTypeButton(classTypeButton : ImageButton, entering : boolean)
     if classTypeClicked == classTypeButton.Name then
         return
     elseif entering then
@@ -160,11 +160,11 @@ function Module:HoveringOverClassTypeButton(classTypeButton : ImageButton, enter
     end
 end
 
-function Module:Start()
+function Module.Start()
     
 end
 
-function Module:Init(ParentController, otherSystems)
+function Module.Init(ParentController, otherSystems)
     WidgetControllerModule = ParentController
     SystemsContainer = otherSystems
 end

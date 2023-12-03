@@ -39,30 +39,30 @@ local Module = {}
 Module.WidgetTrove = Trove.new()
 Module.Open = false
 
-function Module:UpdateWidget()
+function Module.UpdateWidget()
     if #ProfileCache[LocalPlayer.UserId] == 0 then
-        Module:CloseWidget()
-        WidgetControllerModule:ToggleWidget("CharacterCreationWidget", true, true)
+        Module.CloseWidget()
+        WidgetControllerModule.ToggleWidget("CharacterCreationWidget", true, true)
         return false
     else
-        Module:LoadWidget()
+        Module.LoadWidget()
         return true
     end
 end
 
-function Module:LoadWidget()
-    Module:DisplayCharacterSlots()
+function Module.LoadWidget()
+    Module.DisplayCharacterSlots()
 
     Module.WidgetTrove:Add(LoadCharacterWidget.PlayButton.Activated:Connect(function()
-        Module:PlayProfile()
+        Module.PlayProfile()
     end))
 
     Module.WidgetTrove:Add(LoadCharacterWidget.CreateButton.Activated:Connect(function()
-        Module:CreateProfile()
+        Module.CreateProfile()
     end))
 
     Module.WidgetTrove:Add(LoadCharacterWidget.WipeDataBtn.Activated:Connect(function()
-        Module:WipeData()
+        Module.WipeData()
     end))
 
     if #ProfileCache[LocalPlayer.UserId] == 4 then
@@ -70,18 +70,18 @@ function Module:LoadWidget()
     end
 
     -- Click the first profile
-    Module:ProfileClicked(LoadCharacterWidget.CurrentCharacters.CharacterContainer:FindFirstChild("CharSlot_1"), true)
+    Module.ProfileClicked(LoadCharacterWidget.CurrentCharacters.CharacterContainer:FindFirstChild("CharSlot_1"), true)
 
     LoadCharacterWidget.CharacterNameHolder.CharacterName.Text = ProfileNameClicked
 end
 
-function Module:PlayProfile()
+function Module.PlayProfile()
     if ProfileNameClicked == "" then
         return
     end
 
     playCharacter:Fire(ProfileNumClicked)
-    Module:CloseWidget()
+    Module.CloseWidget()
 
     local camera = workspace.CurrentCamera
     camera.CameraType = Enum.CameraType.Custom
@@ -94,16 +94,16 @@ function Module:PlayProfile()
     controls:Enable()
 end
 
-function Module:CreateProfile()
-    Module:CloseWidget()
-    WidgetControllerModule:ToggleWidget("CharacterCreationWidget", true, false)
+function Module.CreateProfile()
+    Module.CloseWidget()
+    WidgetControllerModule.ToggleWidget("CharacterCreationWidget", true, false)
 end
 
-function Module:WipeData()
+function Module.WipeData()
     wipeAllData:Fire()
 end
 
-function Module:ProfileClicked(profileButton : TextButton, firstTime : boolean)
+function Module.ProfileClicked(profileButton : TextButton, firstTime : boolean)
 
     -- If the profile is already clicked, don't do anything, unless it's the first time
     if tonumber(profileButton.Name:match("%d+")) == ProfileNumClicked and not firstTime then
@@ -131,7 +131,7 @@ function Module:ProfileClicked(profileButton : TextButton, firstTime : boolean)
     LoadCharacterWidget.CharacterNameHolder.CharacterName.Text = ProfileNameClicked
 end
 
-function Module:HoveringOverProfile(profileButton : TextButton, entering : boolean)
+function Module.HoveringOverProfile(profileButton : TextButton, entering : boolean)
     if tonumber(profileButton.Name:match("%d+")) == ProfileNumClicked then
         return
     elseif entering then
@@ -141,7 +141,7 @@ function Module:HoveringOverProfile(profileButton : TextButton, entering : boole
     end
 end
 
-function Module:DisplayCharacterSlots()
+function Module.DisplayCharacterSlots()
     for profileNum, profileData in ipairs(ProfileCache[LocalPlayer.UserId]) do
         local CharSlotClone = LoadCharacterWidget.CurrentCharacters.CharacterContainer.CharSlotTemplate:Clone()
        
@@ -161,15 +161,15 @@ function Module:DisplayCharacterSlots()
 
         -- Add the connections to check hovering and clicked
         Module.WidgetTrove:Add(CharSlotClone.Activated:Connect(function()
-            Module:ProfileClicked(CharSlotClone, false)
+            Module.ProfileClicked(CharSlotClone, false)
         end))
 
         Module.WidgetTrove:Add(CharSlotClone.MouseEnter:Connect(function()
-            Module:HoveringOverProfile(CharSlotClone, true)
+            Module.HoveringOverProfile(CharSlotClone, true)
         end))
 
         Module.WidgetTrove:Add(CharSlotClone.MouseLeave:Connect(function()
-            Module:HoveringOverProfile(CharSlotClone, false)
+            Module.HoveringOverProfile(CharSlotClone, false)
         end))
 
         CharSlotClone.Parent = LoadCharacterWidget.CurrentCharacters.CharacterContainer
@@ -178,7 +178,7 @@ function Module:DisplayCharacterSlots()
 
 end
 
-function Module:OpenWidget()
+function Module.OpenWidget()
     if Module.Open then
         return
     end
@@ -188,14 +188,14 @@ function Module:OpenWidget()
     ProfileNumClicked = 1
     ProfileNameClicked = ""
 
-    if Module:UpdateWidget() then
+    if Module.UpdateWidget() then
         LoadCharacterWidget.Enabled = true
         return
     end
 end
 
 
-function Module:CloseWidget()
+function Module.CloseWidget()
     if not Module.Open then
         return
     end
@@ -214,12 +214,12 @@ function Module:CloseWidget()
 end
 
 
-function Module:Start()
+function Module.Start()
 
     Module.WidgetTrove:Add(getAllProfileData:Connect(function(playerData)
         ProfileCache[LocalPlayer.UserId] = playerData
         -- print(ProfileCache[LocalPlayer.UserId], #ProfileCache[LocalPlayer.UserId])
-        Module:OpenWidget()
+        Module.OpenWidget()
     end))
 
     -- ReplicaController.ReplicaOfClassCreated("PlayerProfile_" .. LocalPlayer.UserId, function(replica)
@@ -233,7 +233,7 @@ function Module:Start()
     -- end)
 end
 
-function Module:Init(ParentController, otherSystems)
+function Module.Init(ParentController, otherSystems)
     WidgetControllerModule = ParentController
     SystemsContainer = otherSystems
 end

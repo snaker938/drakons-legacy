@@ -11,11 +11,11 @@ local Module = {}
 Module.WidgetTrove = Trove.new()
 Module.Open = false
 
-function Module:UpdateWidget()
+function Module.UpdateWidget()
 
 end
 
-function Module:OpenWidget()
+function Module.OpenWidget()
 	if Module.Open then
 		return
 	end
@@ -23,7 +23,7 @@ function Module:OpenWidget()
 	Module.Open = true
 end
 
-function Module:CloseWidget()
+function Module.CloseWidget()
 	if not Module.Open then
 		return
 	end
@@ -32,11 +32,11 @@ function Module:CloseWidget()
 	Module.WidgetTrove:Destroy()
 end
 
-function Module:Start()
+function Module.Start()
 
 end
 
-function Module:Init(ParentController, otherSystems)
+function Module.Init(ParentController, otherSystems)
 	WidgetControllerModule = ParentController
 	SystemsContainer = otherSystems
 end

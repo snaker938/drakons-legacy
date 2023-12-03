@@ -11,11 +11,11 @@ local SystemsContainer = {}
 -- // Module // --
 local Module = {}
 
-function Module:Start()
+function Module.Start()
 	-- print(SystemsContainer)
 end
 
-function Module:Init(otherSystems)
+function Module.Init(otherSystems)
 	SystemsContainer = otherSystems
 end
 

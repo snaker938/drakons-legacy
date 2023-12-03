@@ -7,23 +7,23 @@ local DEFAULT_WIDGET_IGNORE_LIST = {"EmptyWidget"}
 -- // Module // --
 local Module = {}
 
-function Module:GetWidget(widgetName)
+function Module.GetWidget(widgetName)
 	return WidgetsCache[widgetName]
 end
 
-function Module:ToggleWidget(widgetName, enabled, ...)
+function Module.ToggleWidget(widgetName, enabled, ...)
 	local cachedModule = WidgetsCache[widgetName]
 	if not cachedModule then
 		return
 	end
 	if enabled then
-		cachedModule:OpenWidget(...)
+		cachedModule.OpenWidget(...)
 	else
-		cachedModule:CloseWidget()
+		cachedModule.CloseWidget()
 	end
 end
 
-function Module:IsWidgetOpen(widgetName)
+function Module.IsWidgetOpen(widgetName)
 	local cachedModule = WidgetsCache[widgetName]
 	if not cachedModule then
 		return
@@ -31,54 +31,54 @@ function Module:IsWidgetOpen(widgetName)
 	return cachedModule.Open
 end
 
-function Module:ToggleAllWidgets(enabled)
+function Module.ToggleAllWidgets(enabled)
 	for widgetName, WidgetModule in pairs(WidgetsCache) do
 		if table.find(DEFAULT_WIDGET_IGNORE_LIST, widgetName) then
 			continue
 		end
 		if enabled then
 			if not WidgetModule.Open then
-				WidgetModule:OpenWidget()
+				WidgetModule.OpenWidget()
 			end
 		else
-			WidgetModule:CloseWidget()
+			WidgetModule.CloseWidget()
 		end
 	end
 end
 
-function Module:UpdateWidget(widgetName)
+function Module.UpdateWidget(widgetName)
 	local cachedModule = WidgetsCache[widgetName]
 	if not cachedModule then
 		return
 	end
-	cachedModule:UpdateWidget()
+	cachedModule.UpdateWidget()
 end
 
-function Module:Start()
+function Module.Start()
 	-- enable LoadCharacter menu on spawn, if the player has at least one character, otherwise open the character creation menu
 	for WidgetName, WidgetModule in pairs(WidgetsCache) do
-		WidgetModule:CloseWidget()
+		WidgetModule.CloseWidget()
 		-- if WidgetName == "LoadCharacterWidget" then
-		-- 	WidgetModule:OpenWidget()
+		-- 	WidgetModule.OpenWidget()
 		-- else
-		-- 	WidgetModule:CloseWidget()
+		-- 	WidgetModule.CloseWidget()
 		-- end
 	end
 end
 
-function Module:Init(otherSystems)
+function Module.Init(otherSystems)
 	SystemsContainer = otherSystems
 
 	-- Cache and initialize widget modules
 	for _, WidgetModule in ipairs(script:GetChildren()) do
 		local Cached = require(WidgetModule)
-		Cached:Init(Module, otherSystems)
+		Cached.Init(Module, otherSystems)
 		WidgetsCache[WidgetModule.Name] = Cached
 	end
 
 	-- start all modules
 	for _, CachedModule in pairs(WidgetsCache) do
-		CachedModule:Start()
+		CachedModule.Start()
 	end
 end
 

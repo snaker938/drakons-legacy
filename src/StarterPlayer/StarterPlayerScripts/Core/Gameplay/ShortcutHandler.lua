@@ -10,7 +10,7 @@ local SystemsContainer = {}
 -- // Module // --
 local Module = {}
 
-function Module:DisableDefaultKeybinds()
+function Module.DisableDefaultKeybinds()
     CAS:BindActionAtPriority("DisableI", function()
         return Enum.ContextActionResult.Sink
     end, false, Enum.ContextActionPriority.High.Value, Enum.KeyCode.I)
@@ -20,10 +20,10 @@ function Module:DisableDefaultKeybinds()
     end, false, Enum.ContextActionPriority.High.Value, Enum.KeyCode.L)
 end
 
-function Module:InputBegan(input, _gameProcessed)
+function Module.InputBegan(input, _gameProcessed)
 
     -- Nothing should happen if the LoadCharacterWidget or CharacterCreationWidget is open
-    if SystemsContainer.ParentSystems.Widgets:IsWidgetOpen("LoadCharacterWidget") or SystemsContainer.ParentSystems.Widgets:IsWidgetOpen("CharacterCreationWidget") then
+    if SystemsContainer.ParentSystems.Widgets.IsWidgetOpen("LoadCharacterWidget") or SystemsContainer.ParentSystems.Widgets.IsWidgetOpen("CharacterCreationWidget") then
         return
     end
 
@@ -39,15 +39,15 @@ function Module:InputBegan(input, _gameProcessed)
 	end
 end
 
-function Module:Start()
-    Module:DisableDefaultKeybinds()
+function Module.Start()
+    Module.DisableDefaultKeybinds()
 
     UserInputService.InputBegan:Connect(function(input, _gameProcessed)
-        Module:InputBegan(input, _gameProcessed)
+        Module.InputBegan(input, _gameProcessed)
     end)
 end
 
-function Module:Init(otherSystems)
+function Module.Init(otherSystems)
     SystemsContainer = otherSystems
 end
 

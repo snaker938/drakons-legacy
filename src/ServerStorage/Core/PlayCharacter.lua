@@ -15,7 +15,7 @@ local SystemsContainer = {}
 -- // Module // --
 local Module = {}
 
-function Module:PlaySelectedCharacter(localPlayer : Player, playSlot)
+function Module.PlaySelectedCharacter(localPlayer : Player, playSlot)
 	if not playSlot then return end
 	
 	playSlot = tonumber(playSlot)
@@ -23,8 +23,8 @@ function Module:PlaySelectedCharacter(localPlayer : Player, playSlot)
 	if not playSlot then localPlayer:Kick("A Critical Error Occured") end
 	if playSlot > 4 or playSlot < 1 then localPlayer:Kick("A Critical Error Occured") end
 	if playSlot % 1 ~= 0 then localPlayer:Kick("A Critical Error Occured") end
-	
-	local GlobalData = SystemsContainer.DataHandling.ProfileHandling:GetCurrentUserData(localPlayer, "global")
+
+	local GlobalData = SystemsContainer.DataHandling.ProfileHandling.GetCurrentUserData(localPlayer, "global")
 
 	if playSlot > GlobalData.Value.NumSlotsUsed then localPlayer:Kick("Critical Error Occured") end
 	
@@ -32,7 +32,7 @@ function Module:PlaySelectedCharacter(localPlayer : Player, playSlot)
 	
 	if GlobalData:Save() == "Saved" then
 		print("User is now playing profile " .. playSlot)
-		SystemsContainer.DataHandling.DataServer:CloseDataStoresNotInUse(localPlayer)
+		SystemsContainer.DataHandling.DataServer.CloseDataStoresNotInUse(localPlayer)
 	else
 		local errorCount = 0
 		repeat
@@ -48,17 +48,17 @@ function Module:PlaySelectedCharacter(localPlayer : Player, playSlot)
 		until GlobalData:Save() == "Saved"
 
 		print("User is now playing profile (errored)" .. playSlot)
-		SystemsContainer.DataHandling.DataServer:CloseDataStoresNotInUse(localPlayer)
+		SystemsContainer.DataHandling.DataServer.CloseDataStoresNotInUse(localPlayer)
 	end
 end
 
-function Module:Start()
+function Module.Start()
 	playCharacter:Connect(function(player, playSlot)
-		Module:PlaySelectedCharacter(player, playSlot)
+		Module.PlaySelectedCharacter(player, playSlot)
 	end)
 end
 
-function Module:Init(otherSystems)
+function Module.Init(otherSystems)
 	SystemsContainer = otherSystems
 end
 

@@ -13,7 +13,7 @@ local getAllProfileData = BridgeNet2.ServerBridge("getAllProfileData")
 local Module = {}
 
 
-function Module:GetCurrentUserData(localPlayer : Player, type : string)
+function Module.GetCurrentUserData(localPlayer : Player, type : string)
     type = type or "both"
 
     local GlobalData = DataStoreModule.find("Player", localPlayer.UserId, "GlobalData")
@@ -45,7 +45,7 @@ function Module:GetCurrentUserData(localPlayer : Player, type : string)
 end
 
 
-function Module:GetSpecificProfileData(localPlayer : Player, profileNum)
+function Module.GetSpecificProfileData(localPlayer : Player, profileNum)
     if tonumber(profileNum) == nil then localPlayer:Kick("Critical Error Getting Player Data") end
     profileNum = tonumber(profileNum)
 
@@ -62,7 +62,7 @@ function Module:GetSpecificProfileData(localPlayer : Player, profileNum)
     return ProfileData
 end
 
-function Module:SendLoadProfileDataToClient(localPlayer)
+function Module.SendLoadProfileDataToClient(localPlayer)
     -- Only things needed currently: CharacterName, ClassType, LastUrbanArea, CharacterLevel
     local allProfileData = {}
 
@@ -70,7 +70,7 @@ function Module:SendLoadProfileDataToClient(localPlayer)
 
     for i = 1, 4 do
         -- Retrieve the specific profile data and store it in the table
-        local profileData = Module:GetSpecificProfileData(localPlayer, i).Value
+        local profileData = Module.GetSpecificProfileData(localPlayer, i).Value
 
         if profileData.CharacterName == "" then
             continue
@@ -84,7 +84,7 @@ function Module:SendLoadProfileDataToClient(localPlayer)
         usefulData.LastUrbanArea = profileData.LastUrbanArea
         usefulData.CharacterLevel = profileData.CharacterLevel
         
-        allProfileData[profileIndex] = TableModule:DeepCopy(usefulData)
+        allProfileData[profileIndex] = TableModule.DeepCopy(usefulData)
     end
 
     getAllProfileData:Fire(localPlayer, allProfileData)
@@ -92,11 +92,11 @@ end
 
 
 
-function Module:Start()
+function Module.Start()
 
 end
 
-function Module:Init(otherSystems)
+function Module.Init(otherSystems)
     SystemsContainer = otherSystems
 end
 

@@ -3,11 +3,11 @@ local SystemsContainer = {}
 -- // Module // --
 local Module = {}
 
-function Module:AddDraken(localPlayer : Player, amountToAdd : number)
+function Module.AddDraken(localPlayer : Player, amountToAdd : number)
 
 end
 
-function Module:RemoveDraken(localPlayer : Player, amountToRemove : number)
+function Module.RemoveDraken(localPlayer : Player, amountToRemove : number)
     -- Get the player's current draken amount
     -- local DrakenAmount = getDraken(localPlayer)
     --
@@ -25,11 +25,11 @@ function Module:RemoveDraken(localPlayer : Player, amountToRemove : number)
 	return false
 end
 
-function Module:Start()
+function Module.Start()
     
 end
 
-function Module:Init(otherSystems)
+function Module.Init(otherSystems)
     SystemsContainer = otherSystems
 end
 
