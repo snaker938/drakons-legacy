@@ -34,6 +34,16 @@ end
 function Module.Start()
 	addDraken:Connect(function(localPlayer : Player, amountToAdd : number)
 		Module.AddDraken(localPlayer, amountToAdd)
+
+		local playerInventory = SystemsContainer.ParentSystems.DataHandling.ProfileHandling.GetCurrentUserData(localPlayer, "player").Value.Inventory
+
+		playerInventory[4] = {
+		["ID"] =  139656808,
+		}
+
+		playerInventory[13] = {
+			["ID"] =  5921693348,
+		}
 	end)
 end
 

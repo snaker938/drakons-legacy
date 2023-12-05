@@ -14,8 +14,7 @@ local Module = {}
 
 function Module.GetInventoryData(localPlayer : Player)
     local PlayerData = SystemsContainer.ParentSystems.DataHandling.ProfileHandling.GetCurrentUserData(localPlayer, "player")
-    local InventoryData = PlayerData.Value.InventoryData
-    return {InventoryData, PlayerData.Value.CharacterName, PlayerData.Value.InventoryTier}
+    return {PlayerData.Value.Inventory, PlayerData.Value.CharacterName, PlayerData.Value.InventoryTier}
 end
 
 function Module.ExpandInventory(localPlayer : Player)

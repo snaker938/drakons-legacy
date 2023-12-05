@@ -34,15 +34,33 @@ Module.WidgetTrove = Trove.new()
 Module.Open = false
 
 function Module.UpdateWidget()
+    local InitialInventoryData = getInventoryData:InvokeServerAsync()
+    Module.InventoryCache[LocalPlayer.UserId] = InitialInventoryData
+
+    SystemsContainer.Overlays.ToggleOverlay("ExpandGuiOverlay", false)
     Module.WidgetTrove:Destroy()
     Module.LoadWidget()
 end
 
 function Module.SetupPageButtons()
-    local PageButtons = InventoryBase.InventoryPageHolder:GetChildren()
+    local PageButtons = InventoryBase.InventoryPageHolder.PositionFrame:GetChildren()
     for _, pageButton in pairs(PageButtons) do
-        if pageButton:IsA("ImageButton") then
+        if pageButton:IsA("TextButton") then
+            if pageButton.Name == tostring(Module.CurrentPage) then
+                pageButton.TextTransparency = 0.5
+            else
+                pageButton.TextTransparency = 0
+            end
+
+            if InventoryData.GetMaxPageForTier(Module.InventoryCache[LocalPlayer.UserId][3]) < tonumber(pageButton.Name) then
+                pageButton.Visible = false
+                continue
+            else
+                pageButton.Visible = true
+            end
+            
             Module.WidgetTrove:Add(pageButton.Activated:Connect(function()
+                if tonumber(pageButton.Name) == Module.CurrentPage then return end
                 Module.CurrentPage = tonumber(pageButton.Name)
                 Module.UpdateWidget()
             end))
@@ -50,29 +68,15 @@ function Module.SetupPageButtons()
     end
 end
 
-function Module.ExpandInventory()
+function Module.ExpandInventory(ExpandInvButtonClone)
     local expandComplete = expandInventory:InvokeServerAsync()
 
     if not expandComplete then print("Expansion Failed!") return end
 
-    print("Inventory Expanded!")
+    Module.UpdateWidget()
 end
 
-function Module.DisplayInventorySlots()
-    local slotStartNumber = InventoryData.GetSlotStartNumber(Module.CurrentPage)
-
-    local slotEndNumber = InventoryData.GetSlotEndNumber(Module.CurrentPage, Module.InventoryCache[LocalPlayer.UserId][3])
-
-    for i = slotStartNumber, slotEndNumber do
-        local SlotClone =Templates. SlotTemplate:Clone() :: ImageLabel
-        Module.WidgetTrove:Add(SlotClone)
-        SlotClone.Name = "I_Slot" .. i
-        SlotClone.Parent = InventoryBase.InventorySlots
-        SlotClone.Visible = true
-    end
-
-    -- Display expand inventory button
-
+function Module.DisplayExpandInvButton()
     local nextExpandInvTier = Module.InventoryCache[LocalPlayer.UserId][3] + 1
 
     local expandInvButtonPosition = InventoryData.GetPositionForExpandInvButton(nextExpandInvTier)
@@ -80,7 +84,6 @@ function Module.DisplayInventorySlots()
     if not expandInvButtonPosition then return end
 
     local expandBtnPageNum = expandInvButtonPosition[1]
-    -- local expandBtnSlotNum = expandInvButtonPosition[2]
 
     if expandBtnPageNum == Module.CurrentPage then
         local ExpandInvButtonClone = Templates.ExpandInvBtnTemplate:Clone() :: ImageButton
@@ -103,11 +106,36 @@ function Module.DisplayInventorySlots()
         end))
 
         Module.WidgetTrove:Add(ExpandInvButtonClone.Activated:Connect(function()
-            Module.ExpandInventory()
+            Module.ExpandInventory(ExpandInvButtonClone)
         end))
 
         ExpandInvButtonClone.Parent = InventoryBase.InventorySlots
         ExpandInvButtonClone.Visible = true
+    end
+end
+
+function Module.DisplayInventorySlots()
+    local slotStartNumber = InventoryData.GetSlotStartNumber(Module.CurrentPage)
+
+    local slotEndNumber = InventoryData.GetSlotEndNumber(Module.CurrentPage, Module.InventoryCache[LocalPlayer.UserId][3])
+
+    for i = slotStartNumber, slotEndNumber do
+        local SlotClone =Templates. SlotTemplate:Clone() :: ImageLabel
+        Module.WidgetTrove:Add(SlotClone)
+        SlotClone.Name = "I_Slot" .. i
+        SlotClone.Parent = InventoryBase.InventorySlots
+
+        local playerInv = Module.InventoryCache[LocalPlayer.UserId][1]
+        
+        if playerInv[tostring(i)] then
+            local ItemThumbnailTemplateClone = Templates.ItemThumbnailTemplate:Clone() :: ImageLabel
+            Module.WidgetTrove:Add(ItemThumbnailTemplateClone)
+            ItemThumbnailTemplateClone.Name = "ItemThumbnail"
+            ItemThumbnailTemplateClone.Image = "rbxassetid://" .. tostring(playerInv[tostring(i)]["ID"])
+            ItemThumbnailTemplateClone.Parent = SlotClone
+            ItemThumbnailTemplateClone.Visible = true
+        end
+        SlotClone.Visible = true
     end
 end
 
@@ -129,10 +157,6 @@ function Module.OpenWidget()
     end))
 
     loadInitialInventoryData()
-
-    local InitialInventoryData = getInventoryData:InvokeServerAsync()
-
-    Module.InventoryCache[LocalPlayer.UserId] = InitialInventoryData
 
     Module.Open = true
     Module.UpdateWidget()

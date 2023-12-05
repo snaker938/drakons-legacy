@@ -19,6 +19,25 @@ Module.InventoryTierPrices = {
 	10000, -- Tier16
 }
 
+Module.MaxPageForTier = {
+	1, -- Tier 1 (Default)
+	2,
+	2,
+	3,
+	3,
+	4,
+	4,
+	5,
+	5,
+	6,
+	6,
+	7,
+	7,
+	8,
+	8,
+	8, -- Tier 16
+}
+
 Module.InventorySlotsPerTier = {
 	21, -- Page1 (Default, 1)
 	28, -- Page1
@@ -98,6 +117,10 @@ end
 
 function Module.GetPositionForExpandInvButton(tier)
 	return Module.PositionsForExpandInvButton[tier]
+end
+
+function Module.GetMaxPageForTier(tier)
+	return Module.MaxPageForTier[tier]
 end
 
 
