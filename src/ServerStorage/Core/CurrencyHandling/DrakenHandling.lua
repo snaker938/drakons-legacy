@@ -1,32 +1,40 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local BridgeNet2 = require(ReplicatedStorage.Packages.BridgeNet2)
+
+local addDraken = BridgeNet2.ServerBridge("addDraken")
+
 local SystemsContainer = {}
 
 -- // Module // --
 local Module = {}
 
 function Module.AddDraken(localPlayer : Player, amountToAdd : number)
-
+	print("Adding Draken!")
+	local GlobalData = SystemsContainer.ParentSystems.DataHandling.ProfileHandling.GetCurrentUserData(localPlayer, "global")
+	GlobalData.Value.Draken += amountToAdd
+	GlobalData:Save()
 end
 
-function Module.RemoveDraken(localPlayer : Player, amountToRemove : number)
-    -- Get the player's current draken amount
-    -- local DrakenAmount = getDraken(localPlayer)
-    --
-    if amountToRemove > 10 then
+function Module.DeductDraken(localPlayer : Player, amountToRemove : number)
+	local GlobalData = SystemsContainer.ParentSystems.DataHandling.ProfileHandling.GetCurrentUserData(localPlayer, "global")
+	
+	if GlobalData.Value.Draken < amountToRemove then
 		-- Open Shop To Draken Page
-
-        --
+		print("Opening shop!")
 		return false
 	else
-		-- DataStore.Value.Draken -= amountToDeduct
-		-- if DataStore:Save() == "Saved" then
-		-- 	return true
-		-- end
+		GlobalData.Value.Draken -= amountToRemove
+		GlobalData:Save()
+		return true
 	end
-	return false
+
+	GlobalData:Save()
 end
 
 function Module.Start()
-    
+	addDraken:Connect(function(localPlayer : Player, amountToAdd : number)
+		Module.AddDraken(localPlayer, amountToAdd)
+	end)
 end
 
 function Module.Init(otherSystems)

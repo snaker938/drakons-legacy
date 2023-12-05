@@ -1,81 +1,105 @@
 local Module = {}
 
 Module.InventoryTierPrices = {
-	Tier1 = 1400,
-	Tier2 = 2000,
-	Tier3 = 3000,
-	Tier4 = 4000,
-	Tier5 = 5000,
-	Tier6 = 6000,
-	Tier7 = 7000,
-	Tier8 = 8000,
-	Tier9 = 9000,
-	Tier10= 10000,
-	Tier11 = 10000,
-	Tier12 = 10000,
-	Tier13 = 10000,
-	Tier14 = 10000,
-	Tier15 = 10000,
+	nil,
+	1400,  -- Tier2
+	2000,
+	3000,
+	4000,
+	5000,
+	6000,
+	7000,
+	8000,
+	9000,
+	10000,
+	10000,
+	10000,
+	10000,
+	10000,
+	10000, -- Tier16
 }
 
 Module.InventorySlotsPerTier = {
-	Tier0 = 21, -- Page1
-	Tier1 = 28, -- Page1
-	Tier2 = 42, -- Page2
-	Tier3 = 56, -- Page2
-	Tier4 = 70, -- Page3
-	Tier5 = 84, -- Page3
-	Tier6 = 98, -- Page4
-	Tier7 = 112, -- Page4
-	Tier8 = 126, -- Page5
-	Tier9 = 140, -- Page5
-	Tier10 = 154, -- Page6
-	Tier11 = 168, -- Page6
-	Tier12 = 182, -- Page7
-	Tier13 = 196, -- Page7
-	Tier14 = 210, -- Page8
-	Tier15 = 224, -- Page8
+	21, -- Page1 (Default, 1)
+	28, -- Page1
+	42, -- Page2
+	56, -- Page2
+	70, -- Page3
+	84, -- Page3
+	98, -- Page4
+	112, -- Page4
+	126, -- Page5
+	140, -- Page5
+	154, -- Page6
+	168, -- Page6
+	182, -- Page7
+	196, -- Page7
+	210, -- Page8
+	224, -- Page8 (Max, 16)
 }
 
 Module.SlotStartNumberPerPage = {
-	Page1 = 1,
-	Page2 = 29,
-	Page3 = 57,
-	Page4 = 85,
-	Page5 = 113,
-	Page6 = 141,
-	Page7 = 169,
-	Page8 = 197,
+	1, -- Page1
+	29, -- Page2
+	57,  -- Page3
+	85,  -- Page4
+	113, -- Page5
+	141, -- Page6
+	169, -- Page7
+	197, -- Page8
 }
 
 Module.SlotEndNumberPerPage = {
-	Page1 = 28,
-	Page2 = 56,
-	Page3 = 84,
-	Page4 = 112,
-	Page5 = 140,
-	Page6 = 168,
-	Page7 = 196,
-	Page8 = 224,
+	28, -- Page1
+	56, -- Page2
+	84, -- Page3
+	112, -- Page4
+	140, -- Page5
+	168, -- Page6
+	196, -- Page7
+	224, -- Page8
 }
 
 -- Format: [pageNumber, slotNumber]
 Module.PositionsForExpandInvButton = {
-	Tier1 = {1, 22},
-	Tier2 = {2, 1},
-	Tier3 = {2, 15},
-	Tier4 = {3, 1},
-	Tier5 = {3, 15},
-	Tier6 = {4, 1},
-	Tier7 = {4, 15},
-	Tier8 = {5, 1},
-	Tier9 = {5, 15},
-	Tier10 = {6, 1},
-	Tier11 = {6, 15},
-	Tier12 = {7, 1},
-	Tier13 = {7, 15},
-	Tier14 = {8, 1},
-	Tier15 = {8, 15},
+	{nil},
+	{1, 22}, -- Tier2
+	{2, 1},
+	{2, 15},
+	{3, 1},
+	{3, 15},
+	{4, 1},
+	{4, 15},
+	{5, 1},
+	{5, 15},
+	{6, 1},
+	{6, 15},
+	{7, 1},
+	{7, 15},
+	{8, 1},
+	{8, 15}, -- Tier16
 }
+
+function Module.GetInventoryTierPrice(tier)
+	return Module.InventoryTierPrices[tier]
+end
+
+function Module.GetInventorySlotsPerTier(tier)
+	return Module.InventorySlotsPerTier[tier]
+end
+
+function Module.GetSlotStartNumber(page)
+	return Module.SlotStartNumberPerPage[page]
+end
+
+function Module.GetSlotEndNumber(page, currentTier)
+	return math.min(Module.SlotEndNumberPerPage[page], Module.InventorySlotsPerTier[currentTier])
+end
+
+function Module.GetPositionForExpandInvButton(tier)
+	return Module.PositionsForExpandInvButton[tier]
+end
+
+
 
 return Module

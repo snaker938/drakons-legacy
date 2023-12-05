@@ -18,7 +18,7 @@ local ProfileDataTemplate = {
 	LastArea = "Starfall Bastion",
 	-- QuestData = {},
 	Inventory = {},
-	InventoryTier = 0,
+	InventoryTier = 1,
 	-- EquippedItems = {},
 	-- CurrencyBag = {},
 	-- MapStatus = {},
@@ -30,7 +30,7 @@ local ProfileDataTemplate = {
 	-- Buffs = {},
 	-- WisdomTree = {},
 	Locker = {},
-	LockerTier = 0,
+	LockerTier = 1,
 	-- Gamepasses = {},
 	-- OtherStats = {},
 }

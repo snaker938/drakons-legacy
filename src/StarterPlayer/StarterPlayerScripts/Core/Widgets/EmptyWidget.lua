@@ -2,6 +2,9 @@ local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local ReplicatedModules = require(ReplicatedStorage:WaitForChild('Modules'))
 local Trove = ReplicatedModules.Classes.Trove
 
+local BridgeNet2 = require(ReplicatedStorage.Packages.BridgeNet2)
+local addDraken = BridgeNet2.ClientBridge("addDraken")
+
 local SystemsContainer = {}
 local WidgetControllerModule = {}
 
@@ -33,7 +36,10 @@ function Module.CloseWidget()
 end
 
 function Module.Start()
-
+	local AlwaysActiveBtn = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("AlwaysActive").TestBtn
+	AlwaysActiveBtn.Activated:Connect(function()
+		addDraken:Fire(10000)
+	end)
 end
 
 function Module.Init(ParentController, otherSystems)
