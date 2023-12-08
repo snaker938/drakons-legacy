@@ -1,6 +1,8 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
+local UserInputService = game:GetService("UserInputService")
+
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local ReplicatedModules = require(ReplicatedStorage:WaitForChild('Modules'))
 local InventoryData = ReplicatedModules.Data.Inventory
@@ -27,6 +29,19 @@ local loadInitialInventoryData
 -- // Module // --
 local Module = {}
 
+-- Page Buttons Config --
+Module.hoverDuration = 0.4
+Module.hoverDisrupted = false
+Module.hovering = false
+-------------------------
+
+-- Dragging Config --
+Module.DraggingItemSlot = false
+Module.DisplayingDraggingItemSlot = false
+Module.DraggingImageSlotObject = nil
+Module.DraggingSlotName = nil
+--------------------
+
 Module.InventoryCache = {}
 Module.CurrentPage = 1
 
@@ -41,6 +56,38 @@ function Module.UpdateWidget()
     Module.WidgetTrove:Destroy()
     Module.LoadWidget()
 end
+
+function Module.StartPageBtnHoverDetection(pageNum, cancel)
+    if cancel then
+        print("Hovering Cancelled!")
+        Module.hovering = false
+        Module.hoverDisrupted = false
+        Module.UpdateWidget()
+    return end
+
+    if Module.hovering then return end
+
+    Module.hovering = true
+
+    local startTime = os.clock() -- record the starting time
+
+    while os.clock() - startTime < Module.hoverDuration do
+        task.wait(0.1) -- check every 0.1 seconds
+        print("Hovering Time: ", os.clock() - startTime, Module.hoverDisrupted)
+        if Module.hoverDisrupted then
+            Module.hovering = false
+            Module.hoverDisrupted = false
+            Module.UpdateWidget()
+            return
+        end
+    end
+
+    Module.CurrentPage = pageNum
+    Module.hovering = false
+    Module.hoverDisrupted = false
+    Module.UpdateWidget()
+end
+
 
 function Module.SetupPageButtons()
     local PageButtons = InventoryBase.InventoryPageHolder.PositionFrame:GetChildren()
@@ -58,11 +105,22 @@ function Module.SetupPageButtons()
             else
                 pageButton.Visible = true
             end
-            
             Module.WidgetTrove:Add(pageButton.Activated:Connect(function()
                 if tonumber(pageButton.Name) == Module.CurrentPage then return end
                 Module.CurrentPage = tonumber(pageButton.Name)
                 Module.UpdateWidget()
+            end))
+
+            Module.WidgetTrove:Add(pageButton.InputBegan:Connect(function(inputObject)
+                if inputObject.UserInputType == Enum.UserInputType.MouseMovement and not Module.hovering then
+                    Module.StartPageBtnHoverDetection(tonumber(pageButton.Name), false)
+                end
+            end))
+
+            Module.WidgetTrove:Add(pageButton.InputEnded:Connect(function(inputObject)
+                if inputObject.UserInputType == Enum.UserInputType.MouseMovement and Module.hovering and not Module.hoverDisrupted then
+                    Module.StartPageBtnHoverDetection(tonumber(pageButton.Name), true)
+                end
             end))
         end
     end
@@ -114,13 +172,86 @@ function Module.DisplayExpandInvButton()
     end
 end
 
+function Module.DragItemSlot(imageSlot, action, mouseLocation, slotName)
+    if action == "dragStart" then
+        -- print("Dragging Started: ", slotName)
+        Module.DraggingItemSlot = true
+        Module.DraggingImageSlotObject = imageSlot:Clone()
+        Module.DraggingImageSlotObject.Visible = false
+        Module.DraggingSlotName = slotName
+    elseif action == "tryToDisplaySlot" then
+        local GuiObjects = Players.LocalPlayer.PlayerGui:GetGuiObjectsAtPosition(mouseLocation.X, mouseLocation.Y)
+        if not GuiObjects then return end
+        if #GuiObjects == 0 then return end
+        local hoveringOverDifferentSlot = false
+
+        local FoundOwnSlot = false
+
+        for _, GuiObject in pairs(GuiObjects) do
+            -- Check if the user is hovering over a different slot
+            if GuiObject.Name:match("Slot(%d+)") then
+                if GuiObject.Name ~= Module.DraggingSlotName then
+                    -- print(GuiObject.Name, Module.DraggingSlotName)
+                    hoveringOverDifferentSlot = true
+                    break
+                else
+                    FoundOwnSlot = true
+                end
+            end
+            if GuiObject.Name:match("InventoryPageHolder") then
+                hoveringOverDifferentSlot = true
+                break
+            end
+
+            if GuiObject.Name:match("InventoryBase") and not FoundOwnSlot then
+                hoveringOverDifferentSlot = true
+                break
+            end
+        end
+        if not hoveringOverDifferentSlot then return end
+
+        Module.DisplayingDraggingItemSlot = true
+
+        -- print("Displaying Slot: ", Module.DraggingSlotName)
+
+        Module.DraggingImageSlotObject.Name = "ImageThumbnailCloned"
+
+        Module.DraggingImageSlotObject.Position = UDim2.new(0, mouseLocation.X, 0, mouseLocation.Y + 36)
+
+        Module.DraggingImageSlotObject.Size = UDim2.new(0, InventoryBase.InventorySlots.InvLayout.AbsoluteCellSize.X, 0, InventoryBase.InventorySlots.InvLayout.AbsoluteCellSize.Y)
+
+        Module.DraggingImageSlotObject.AnchorPoint = Vector2.new(0.5, 0.5)
+        Module.DraggingImageSlotObject.ImageTransparency = 0.4
+
+
+        Module.DraggingImageSlotObject.Parent = InventoryWidget
+
+        Module.DraggingImageSlotObject.Visible = true
+
+        Module.WidgetTrove:Add(Module.DraggingImageSlotObject)
+    elseif action == "drag" then
+        -- print("Dragging the slot!")
+        Module.DraggingImageSlotObject.Position = UDim2.new(0, mouseLocation.X, 0, mouseLocation.Y + 36)
+    else
+        -- print("Dragging Ended: ", Module.DraggingSlotName)
+
+        Module.WidgetTrove:Remove(Module.DraggingImageSlotObject)
+
+
+        Module.DraggingItemSlot = false
+        Module.DisplayingDraggingItemSlot = false
+        Module.DraggingImageSlotObject = nil
+        Module.DraggingSlotName = nil
+    end
+end
+
 function Module.DisplayInventorySlots()
     local slotStartNumber = InventoryData.GetSlotStartNumber(Module.CurrentPage)
 
     local slotEndNumber = InventoryData.GetSlotEndNumber(Module.CurrentPage, Module.InventoryCache[LocalPlayer.UserId][3])
 
     for i = slotStartNumber, slotEndNumber do
-        local SlotClone =Templates. SlotTemplate:Clone() :: ImageLabel
+        local SlotClone = Templates.SlotTemplate:Clone() :: ImageLabel
         Module.WidgetTrove:Add(SlotClone)
         SlotClone.Name = "I_Slot" .. i
         SlotClone.Parent = InventoryBase.InventorySlots
@@ -129,14 +260,45 @@ function Module.DisplayInventorySlots()
         
         if playerInv[tostring(i)] then
             local ItemThumbnailTemplateClone = Templates.ItemThumbnailTemplate:Clone() :: ImageLabel
-            Module.WidgetTrove:Add(ItemThumbnailTemplateClone)
             ItemThumbnailTemplateClone.Name = "ItemThumbnail"
             ItemThumbnailTemplateClone.Image = "rbxassetid://" .. tostring(playerInv[tostring(i)]["ID"])
             ItemThumbnailTemplateClone.Parent = SlotClone
             ItemThumbnailTemplateClone.Visible = true
+
+            Module.WidgetTrove:Add(ItemThumbnailTemplateClone.InputBegan:Connect(function(inputObject)
+                if inputObject.UserInputType == Enum.UserInputType.MouseButton1 then
+                    local mouseLocation = inputObject.Position
+
+                    Module.DragItemSlot(ItemThumbnailTemplateClone, "dragStart", mouseLocation, SlotClone.Name)
+                end
+            end))
+
+            Module.WidgetTrove:Add(ItemThumbnailTemplateClone)
         end
         SlotClone.Visible = true
     end
+
+    Module.WidgetTrove:Add(UserInputService.InputEnded:Connect(function(inputObject)
+        if inputObject.UserInputType == Enum.UserInputType.MouseButton1 then
+            local mouseLocation = inputObject.Position
+
+            Module.DragItemSlot(nil, "dragEnd", nil, nil)
+        end
+    end))
+
+    Module.WidgetTrove:Add(UserInputService.InputChanged:Connect(function(inputObject)
+        if inputObject.UserInputType == Enum.UserInputType.MouseMovement then
+            local mouseLocation = inputObject.Position
+
+            if Module.DraggingItemSlot then
+                if Module.DisplayingDraggingItemSlot then
+                    Module.DragItemSlot(nil, "drag", mouseLocation, nil)
+                else
+                    Module.DragItemSlot(nil, "tryToDisplaySlot", mouseLocation)
+                end
+            end
+        end
+    end))
 end
 
 function Module.LoadWidget()
@@ -170,6 +332,8 @@ function Module.CloseWidget()
     end
 
     InventoryWidget.Enabled = false
+
+
     
     Module.CurrentPage = 1
     Module.Open = false

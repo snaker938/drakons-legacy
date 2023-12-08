@@ -61,14 +61,8 @@ function Module.UpdateWidget(widgetName)
 end
 
 function Module.Start()
-	-- enable LoadCharacter menu on spawn, if the player has at least one character, otherwise open the character creation menu
-	for WidgetName, WidgetModule in pairs(WidgetsCache) do
+	for _, WidgetModule in pairs(WidgetsCache) do
 		WidgetModule.CloseWidget()
-		-- if WidgetName == "LoadCharacterWidget" then
-		-- 	WidgetModule.OpenWidget()
-		-- else
-		-- 	WidgetModule.CloseWidget()
-		-- end
 	end
 end
 
