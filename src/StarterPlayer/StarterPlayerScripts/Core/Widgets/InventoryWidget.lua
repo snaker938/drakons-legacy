@@ -29,18 +29,19 @@ local loadInitialInventoryData
 -- // Module // --
 local Module = {}
 
--- Page Buttons Config --
-Module.hoverDuration = 0.4
-Module.hoverDisrupted = false
-Module.hovering = false
--------------------------
 
+------------------------- Configs -------------------------
 -- Dragging Config --
 Module.DraggingItemSlot = false
 Module.DisplayingDraggingItemSlot = false
 Module.DraggingImageSlotObject = nil
 Module.DraggingSlotName = nil
---------------------
+
+
+-- Page Buttons Config --
+Module.hoveringAndDraggingDuration = 0.4
+Module.hoveringAndDraggingOverPageNum = 0
+------------------------------------------------------------
 
 Module.InventoryCache = {}
 Module.CurrentPage = 1
@@ -57,34 +58,31 @@ function Module.UpdateWidget()
     Module.LoadWidget()
 end
 
+
 function Module.StartPageBtnHoverDetection(pageNum, cancel)
-    if cancel then
-        print("Hovering Cancelled!")
-        Module.hovering = false
-        Module.hoverDisrupted = false
-        Module.UpdateWidget()
-    return end
+    if cancel or (Module.hoveringAndDraggingOverPageNum ~= pageNum and not Module.hoveringAndDraggingOverPageNum == 0) or not Module.DisplayingDraggingItemSlot then
+        Module.hoveringAndDraggingOverPageNum = 0
+        return
+    end
 
-    if Module.hovering then return end
-
-    Module.hovering = true
+    Module.hoveringAndDraggingOverPageNum = pageNum
 
     local startTime = os.clock() -- record the starting time
 
-    while os.clock() - startTime < Module.hoverDuration do
-        task.wait(0.1) -- check every 0.1 seconds
-        print("Hovering Time: ", os.clock() - startTime, Module.hoverDisrupted)
-        if Module.hoverDisrupted then
-            Module.hovering = false
-            Module.hoverDisrupted = false
-            Module.UpdateWidget()
+    while (os.clock() - startTime < Module.hoveringAndDraggingDuration) and not (Module.hoveringAndDraggingOverPageNum == 0) and (Module.DisplayingDraggingItemSlot) do
+        task.wait(0.1)
+        if (Module.hoveringAndDraggingOverPageNum == 0) or (Module.hoveringAndDraggingOverPageNum ~= pageNum) or not (Module.DisplayingDraggingItemSlot) then
+            Module.hoveringAndDraggingOverPageNum = 0
             return
         end
     end
 
+    if not Module.DisplayingDraggingItemSlot then return end
+    if Module.hoveringAndDraggingOverPageNum == 0 then return end
+
+    print("Loading page: ", pageNum)
     Module.CurrentPage = pageNum
-    Module.hovering = false
-    Module.hoverDisrupted = false
+    Module.hoveringAndDraggingOverPageNum = 0
     Module.UpdateWidget()
 end
 
@@ -105,6 +103,7 @@ function Module.SetupPageButtons()
             else
                 pageButton.Visible = true
             end
+           
             Module.WidgetTrove:Add(pageButton.Activated:Connect(function()
                 if tonumber(pageButton.Name) == Module.CurrentPage then return end
                 Module.CurrentPage = tonumber(pageButton.Name)
@@ -112,13 +111,15 @@ function Module.SetupPageButtons()
             end))
 
             Module.WidgetTrove:Add(pageButton.InputBegan:Connect(function(inputObject)
-                if inputObject.UserInputType == Enum.UserInputType.MouseMovement and not Module.hovering then
+                if not Module.DisplayingDraggingItemSlot or tonumber(pageButton.Name) == tonumber(Module.CurrentPage) then return end
+                if inputObject.UserInputType == Enum.UserInputType.MouseMovement then
                     Module.StartPageBtnHoverDetection(tonumber(pageButton.Name), false)
                 end
             end))
 
             Module.WidgetTrove:Add(pageButton.InputEnded:Connect(function(inputObject)
-                if inputObject.UserInputType == Enum.UserInputType.MouseMovement and Module.hovering and not Module.hoverDisrupted then
+                if not Module.DisplayingDraggingItemSlot or tonumber(pageButton.Name) == tonumber(Module.CurrentPage) then return end
+                if inputObject.UserInputType == Enum.UserInputType.MouseMovement then
                     Module.StartPageBtnHoverDetection(tonumber(pageButton.Name), true)
                 end
             end))
@@ -126,7 +127,7 @@ function Module.SetupPageButtons()
     end
 end
 
-function Module.ExpandInventory(ExpandInvButtonClone)
+function Module.ExpandInventory()
     local expandComplete = expandInventory:InvokeServerAsync()
 
     if not expandComplete then print("Expansion Failed!") return end
@@ -164,7 +165,7 @@ function Module.DisplayExpandInvButton()
         end))
 
         Module.WidgetTrove:Add(ExpandInvButtonClone.Activated:Connect(function()
-            Module.ExpandInventory(ExpandInvButtonClone)
+            Module.ExpandInventory()
         end))
 
         ExpandInvButtonClone.Parent = InventoryBase.InventorySlots
@@ -198,6 +199,7 @@ function Module.DragItemSlot(imageSlot, action, mouseLocation, slotName)
                     FoundOwnSlot = true
                 end
             end
+
             if GuiObject.Name:match("InventoryPageHolder") then
                 hoveringOverDifferentSlot = true
                 break
