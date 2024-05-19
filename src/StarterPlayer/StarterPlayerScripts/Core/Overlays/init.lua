@@ -76,10 +76,13 @@ function Module.Init(otherSystems)
 		OverlaysCache[OverlayModule.Name] = Cached
 	end
 
-	-- start all modules
-	for _, CachedModule in pairs(OverlaysCache) do
+	print("------------ STARTING OVERLAY MODULES ------------")
+	for CachedModuleName, CachedModule in pairs(OverlaysCache) do
+
+		print("Starting overlay: " .. CachedModuleName)
 		CachedModule.Start()
 	end
+	print("------------ STARTED OVERLAY MODULES ------------")
 end
 
 return Module

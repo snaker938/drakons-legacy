@@ -38,7 +38,7 @@ end
 function Module.Start()
 	local AlwaysActiveBtn = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("AlwaysActive").TestBtn
 	AlwaysActiveBtn.Activated:Connect(function()
-		addDraken:Fire(10000)
+		addDraken:InvokeServerAsync(10000)
 	end)
 end
 

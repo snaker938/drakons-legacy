@@ -9,9 +9,15 @@ local Trove = ReplicatedModules.Classes.Trove
 
 local Interface = LocalPlayer:WaitForChild('PlayerGui')
 local DrakenImage = Interface:WaitForChild('Templates').DrakenImage :: ImageLabel
+
 local InventoryWidget = Interface:WaitForChild('Inventory') :: ScreenGui
 local LockerWidget = Interface:WaitForChild('Locker') :: ScreenGui
-local Templates = InventoryWidget.Templates :: Folder
+
+
+local Overlays = Interface:WaitForChild('Overlays') :: ScreenGui
+local Templates = Overlays:WaitForChild('Templates') :: Folder
+
+local ExpandGuiToolTipTemplate = Templates.ExpandGuiToolTipTemplate :: Frame
 
 local SystemsContainer = {}
 local OverlayControllerModule = {}
@@ -41,29 +47,31 @@ function Module.GenerateValueText(priceToDisplay : number)
     return "Price: " .. priceToDisplay
 end
 
-function Module.DisplayExpandGuiOverlay(expandType : string, priceToDisplay : number, slotNumIncrease : number, nextGuiTier : number, position : UDim2)
-    local ExpandGuiFrameClone = Templates.ExpandGuiToolTipTemplateHolder:Clone() :: Frame
-    ExpandGuiFrameClone.Name = "ExpandGuiToolTip"
-    ExpandGuiFrameClone.Position = position
+function Module.DisplayExpandGuiOverlay(location, priceToDisplay, slotNumIncrease, nextGuiTier, absolutePosition)
 
-    local titleText = Module.GenerateTitleText(expandType, nextGuiTier)
-    local bodyText = Module.GenerateBodyText(expandType, slotNumIncrease)
+    local absolutePositionX = absolutePosition[1]
+    local absolutePositionY = absolutePosition[2]
+
+    local ExpandGuiFrameClone = ExpandGuiToolTipTemplate:Clone() :: Frame
+
+    ExpandGuiFrameClone.Name = "ExpandGuiToolTip"
+    ExpandGuiFrameClone.Parent = Overlays
+    ExpandGuiFrameClone.Position = UDim2.new(0, absolutePositionX, 0, absolutePositionY)
+
+
+    local titleText = Module.GenerateTitleText(location, nextGuiTier)
+    local bodyText = Module.GenerateBodyText(location, slotNumIncrease)
     local valueText = Module.GenerateValueText(priceToDisplay)
 
     ExpandGuiFrameClone.TitleText.Text = titleText
     ExpandGuiFrameClone.BodyText.Text = bodyText
     ExpandGuiFrameClone.ValueText.Text = valueText
 
-
-    if expandType == "inventory" then
-        local OverlaysFolder = Instance.new("Folder")
-        Module.OverlayTrove:Add(OverlaysFolder)
-        OverlaysFolder.Name = "Overlays"
-        OverlaysFolder.Parent = InventoryWidget.InventoryBase.InventorySlots
-        ExpandGuiFrameClone.Parent = InventoryWidget.InventoryBase.InventorySlots.Overlays
-    else
-        ExpandGuiFrameClone.Parent = LockerWidget
-    end
+    -- Display the draken image next to the value text
+    local DrakenImageClone = DrakenImage:Clone() :: ImageLabel
+    DrakenImageClone.Position = UDim2.new(0, ExpandGuiFrameClone.ValueText.TextBounds.X + 5, 0, 0)
+    DrakenImageClone.Visible = true
+    DrakenImageClone.Parent = ExpandGuiFrameClone.ValueText
 
     ExpandGuiFrameClone.Visible = true
     Module.OverlayTrove:Add(ExpandGuiFrameClone)
@@ -76,32 +84,32 @@ function Module.OpenOverlay(...)
 
     local args = {...}
 
-    local nextGuiTier = args[2] + 1
-    local position = args[3]
+    local location = args[1]
+    local nextGuiTier = args[2]
+    local specificData = args[3]
+    local absolutePosition = args[4]
+
     local priceToDisplay
     local slotNumIncrease
 
-    if args[1] == "inventory" then
-        priceToDisplay = tonumber(InventoryData.GetInventoryTierPrice(nextGuiTier))
-        slotNumIncrease = tonumber(InventoryData.GetInventorySlotsPerTier(nextGuiTier) - InventoryData.GetInventorySlotsPerTier(args[2]))
 
-        Module.DisplayExpandGuiOverlay("inventory", priceToDisplay, slotNumIncrease, nextGuiTier, position)
-    else
-        priceToDisplay = tonumber(LockerData.GetPriceToExpandLocker(nextGuiTier))
-        slotNumIncrease = tonumber(LockerData.GetLockerSlotsPerTier(nextGuiTier) - LockerData.GetLockerSlotsPerTier(args[2]))
+    priceToDisplay = tonumber(specificData.GetTierPrice(nextGuiTier))
+    slotNumIncrease = tonumber(specificData.GetSlotsPerTier(nextGuiTier) - specificData.GetSlotsPerTier(nextGuiTier - 1))
 
-        Module.DisplayExpandGuiOverlay("locker", priceToDisplay, slotNumIncrease, nextGuiTier, position)
-    end
-    
+    Module.DisplayExpandGuiOverlay(location, priceToDisplay, slotNumIncrease, nextGuiTier, absolutePosition)
+
     Module.Open = true
+
+    Overlays.Enabled = true
 end
 
 function Module.CloseOverlay()
     if not Module.Open then
         return
     end
-    
+
     Module.Open = false
+    Overlays.Enabled = false
     Module.OverlayTrove:Destroy()
 end
 

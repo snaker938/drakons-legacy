@@ -6,6 +6,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local BridgeNet2 = require(ReplicatedStorage.Packages.BridgeNet2)
 local playCharacter = BridgeNet2.ServerBridge("playCharacter")
 
+local getAllCurrencyData = BridgeNet2.ServerBridge("getAllCurrencyData")
+
 
 local Players = game:GetService("Players")
 
@@ -50,6 +52,31 @@ function Module.PlaySelectedCharacter(localPlayer : Player, playSlot)
 		print("User is now playing profile (errored)" .. playSlot)
 		SystemsContainer.DataHandling.DataServer.CloseDataStoresNotInUse(localPlayer)
 	end
+	local PlayerData = SystemsContainer.DataHandling.ProfileHandling.GetCurrentUserData(localPlayer, "player")
+
+	PlayerData.Value.Inventory = {}
+	PlayerData.Value.Locker = {}
+
+
+	PlayerData.Value.Inventory["4"] = {
+		["ID"] =  139656808,
+	}
+
+	PlayerData.Value.Inventory["13"] = {
+		["ID"] =  5921693348,
+	}
+
+	PlayerData.Value.Locker["4"] = {
+		["ID"] =  5921693348,
+	}
+
+	PlayerData.Value.LockerTier = 1
+	PlayerData.Value.InventoryTier = 1
+	
+
+	PlayerData:Save()
+
+    getAllCurrencyData:Fire(localPlayer, GlobalData.Value.Draken)
 end
 
 function Module.Start()

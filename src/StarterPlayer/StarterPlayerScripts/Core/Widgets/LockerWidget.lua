@@ -1,6 +1,8 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
+local UserInputService = game:GetService("UserInputService")
+
 local ReplicatedStorage = game:GetService('ReplicatedStorage')
 local ReplicatedModules = require(ReplicatedStorage:WaitForChild('Modules'))
 
@@ -11,8 +13,9 @@ local BridgeNet2 = require(ReplicatedStorage.Packages.BridgeNet2)
 
 local Interface = LocalPlayer:WaitForChild('PlayerGui')
 
-local InventoryWidget = Interface:WaitForChild('Inventory') :: ScreenGui
-local InventoryBase = InventoryWidget.InventoryBase :: ImageLabel
+local LockerWidget = Interface:WaitForChild('Locker') :: ScreenGui
+local LockerBase = LockerWidget.LockerBase :: ImageLabel
+
 
 local SystemsContainer = {}
 local WidgetControllerModule = {}
@@ -30,11 +33,13 @@ end
 function Module.LoadWidget()
     SystemsContainer.Overlays.ToggleAllOverlays(false)
 
-    Module.WidgetTrove:Add(InventoryBase.CloseButton.Activated:Connect(function()
+    Module.WidgetTrove:Add(LockerBase.CloseButton.Activated:Connect(function()
         Module.CloseWidget()
     end))
 
-    SystemsContainer.Handlers.StartHandler("InventoryHandling")
+    WidgetControllerModule.ToggleWidget("InventoryWidget", true)
+
+    SystemsContainer.Handlers.StartHandler("LockerHandling")
 end
 
 function Module.OpenWidget()
@@ -45,7 +50,7 @@ function Module.OpenWidget()
     Module.Open = true
 
     Module.LoadWidget()
-    InventoryWidget.Enabled = true
+    LockerWidget.Enabled = true
 end
 
 function Module.CloseWidget()
@@ -54,11 +59,11 @@ function Module.CloseWidget()
     end
 
 
-    SystemsContainer.Handlers.EndHandler("InventoryHandling")
-    WidgetControllerModule.ToggleWidget("LockerWidget", false)
+    SystemsContainer.Handlers.EndHandler("LockerHandling")
+
     SystemsContainer.Overlays.ToggleAllOverlays(false)
 
-    InventoryWidget.Enabled = false
+    LockerWidget.Enabled = false
     
     Module.Open = false
     Module.WidgetTrove:Destroy()

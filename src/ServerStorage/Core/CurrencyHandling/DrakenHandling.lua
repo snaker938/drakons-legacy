@@ -2,17 +2,24 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local BridgeNet2 = require(ReplicatedStorage.Packages.BridgeNet2)
 
 local addDraken = BridgeNet2.ServerBridge("addDraken")
+local getDrakenAmount = BridgeNet2.ServerBridge("getDrakenAmount")
+local DrakenAmountChanged = BridgeNet2.ServerBridge("DrakenAmountChanged")
 
 local SystemsContainer = {}
 
 -- // Module // --
 local Module = {}
 
+function Module.DrakenAmountChanged(localPlayer : Player)
+	DrakenAmountChanged:Fire(localPlayer)
+end
+
 function Module.AddDraken(localPlayer : Player, amountToAdd : number)
-	print("Adding Draken!")
 	local GlobalData = SystemsContainer.ParentSystems.DataHandling.ProfileHandling.GetCurrentUserData(localPlayer, "global")
 	GlobalData.Value.Draken += amountToAdd
 	GlobalData:Save()
+
+	Module.DrakenAmountChanged(localPlayer)
 end
 
 function Module.DeductDraken(localPlayer : Player, amountToRemove : number)
@@ -25,26 +32,21 @@ function Module.DeductDraken(localPlayer : Player, amountToRemove : number)
 	else
 		GlobalData.Value.Draken -= amountToRemove
 		GlobalData:Save()
+
+		Module.DrakenAmountChanged(localPlayer)
 		return true
 	end
-
-	GlobalData:Save()
 end
 
 function Module.Start()
-	addDraken:Connect(function(localPlayer : Player, amountToAdd : number)
+	addDraken.OnServerInvoke = function(localPlayer : Player, amountToAdd : number)
 		Module.AddDraken(localPlayer, amountToAdd)
+	end
 
-		local playerInventory = SystemsContainer.ParentSystems.DataHandling.ProfileHandling.GetCurrentUserData(localPlayer, "player").Value.Inventory
-
-		playerInventory[4] = {
-		["ID"] =  139656808,
-		}
-
-		playerInventory[13] = {
-			["ID"] =  5921693348,
-		}
-	end)
+	getDrakenAmount.OnServerInvoke = function(localPlayer : Player)
+		local GlobalData = SystemsContainer.ParentSystems.DataHandling.ProfileHandling.GetCurrentUserData(localPlayer, "global")
+		return GlobalData.Value.Draken
+	end
 end
 
 function Module.Init(otherSystems)

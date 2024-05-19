@@ -30,8 +30,7 @@ function Module.InputBegan(input, _gameProcessed)
     if input.KeyCode == Enum.KeyCode.I then
         SystemsContainer.ParentSystems.Widgets.ToggleWidget("InventoryWidget", nil)
 	elseif input.KeyCode == Enum.KeyCode.L then
-        print("Toggle Locker!")
-    
+        SystemsContainer.ParentSystems.Widgets.ToggleWidget("LockerWidget", nil)
 	end
 end
 
@@ -41,6 +40,9 @@ function Module.Start()
     UserInputService.InputBegan:Connect(function(input, _gameProcessed)
         Module.InputBegan(input, _gameProcessed)
     end)
+
+    local StarterGui = game:GetService('StarterGui')
+    StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
 end
 
 function Module.Init(otherSystems)

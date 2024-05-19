@@ -1,3 +1,5 @@
+local RunService = game:GetService('RunService')
+
 local function hasInit(tbl : table) : boolean
 	return tbl.Init or (getmetatable(tbl) and getmetatable(tbl).Init)
 end
@@ -44,6 +46,7 @@ local function cacheParent( _, Parent )
 end
 
 local function startFramework()
+	if RunService:IsServer() then print("------------ STARTING SERVER MODULES ------------") else print("------------ STARTING CLIENT MODULES ------------") end
 	for _, cache in pairs( CacheTable ) do
 		for moduleName, preLoaded in pairs(cache) do
 			if typeof(preLoaded) ~= 'table' or preLoaded.Started or (not hasStart(preLoaded)) then
@@ -54,6 +57,7 @@ local function startFramework()
 			preLoaded.Start()
 		end
 	end
+	if RunService:IsServer() then print("------------ STARTED SERVER MODULES ------------") else print("------------ STARTED CLIENT MODULES ------------") end
 end
 
 -- // MAIN // --

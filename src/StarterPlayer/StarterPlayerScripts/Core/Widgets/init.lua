@@ -57,6 +57,12 @@ function Module.UpdateWidget(widgetName)
 	if not cachedModule then
 		return
 	end
+
+	-- Only update if the widget is open
+	if not cachedModule.Open then
+		return
+	end
+	
 	cachedModule.UpdateWidget()
 end
 
@@ -76,10 +82,15 @@ function Module.Init(otherSystems)
 		WidgetsCache[WidgetModule.Name] = Cached
 	end
 
+	print("------------ STARTING WIDGET MODULES ------------")
 	-- start all modules
-	for _, CachedModule in pairs(WidgetsCache) do
+	for CachedModuleName, CachedModule in pairs(WidgetsCache) do
+
+		print("Starting widget: " .. CachedModuleName)
 		CachedModule.Start()
 	end
+
+	print("------------ STARTED WIDGET MODULES ------------")
 end
 
 return Module

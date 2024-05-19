@@ -14,6 +14,7 @@ function Output.silent(info: string)
 end
 
 function Output.log(info: string)
+	if info == "Loading server version 1.0.0" or info == "Loaded" or "Loading then return end" then return end
 	print(`{PATTERN}{info}`)
 end
 

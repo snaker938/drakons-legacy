@@ -222,6 +222,8 @@ function Module.Start()
         Module.OpenWidget()
     end))
 
+    -- Module.WipeData()
+
     -- ReplicaController.ReplicaOfClassCreated("PlayerProfile_" .. LocalPlayer.UserId, function(replica)
     --     local is_local = replica.Tags.Player == LocalPlayer
 

@@ -99,11 +99,11 @@ Module.PositionsForExpandInvButton = {
 	{8, 15}, -- Tier16
 }
 
-function Module.GetInventoryTierPrice(tier)
+function Module.GetTierPrice(tier)
 	return Module.InventoryTierPrices[tier]
 end
 
-function Module.GetInventorySlotsPerTier(tier)
+function Module.GetSlotsPerTier(tier)
 	return Module.InventorySlotsPerTier[tier]
 end
 
@@ -115,7 +115,7 @@ function Module.GetSlotEndNumber(page, currentTier)
 	return math.min(Module.SlotEndNumberPerPage[page], Module.InventorySlotsPerTier[currentTier])
 end
 
-function Module.GetPositionForExpandInvButton(tier)
+function Module.GetPositionForExpandGuiBtn(tier)
 	return Module.PositionsForExpandInvButton[tier]
 end
 

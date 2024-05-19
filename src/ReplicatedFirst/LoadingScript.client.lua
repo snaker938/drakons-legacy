@@ -43,8 +43,8 @@ end
 -- for i,asset in ipairs(assets) do
 -- 	ContentProvider:PreloadAsync({asset})
 -- 	local xScale = i/#assets
--- 	resizeCustomLoadingBar(xScale, cloneGui.Frame.ImageBase.Clipping, cloneGui.Frame.ImageBase.Clipping.Top)
--- 	--cloneGui.Frame.LoadingBarOutline.LoadingBar.Size = UDim2.new(xScale,0,cloneGui.Frame.LoadingBarOutline.LoadingBar.Size.Y.Scale,0)
+	-- resizeCustomLoadingBar(xScale, cloneGui.Frame.ImageBase.Clipping, cloneGui.Frame.ImageBase.Clipping.Top)
+	-- --cloneGui.Frame.LoadingBarOutline.LoadingBar.Size = UDim2.new(xScale,0,cloneGui.Frame.LoadingBarOutline.LoadingBar.Size.Y.Scale,0)
 -- 	cloneGui.Frame.AssetNameLabel.Text = LOADING_STRING..asset.Name
 -- 	if i == #assets then
 -- 		local camera = workspace.CurrentCamera
